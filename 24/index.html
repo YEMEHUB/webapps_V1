@@ -1,1 +1,715 @@
 
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>아침해썹! - 청소년 아침 식단 설계 웹앱</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts (Noto Sans KR) -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            yellow: '#FFD966',
+                            orange: '#FF9248',
+                            mint: '#4EECD5',
+                            mintDark: '#20B2AA',
+                            bg: '#FFFDF9',
+                            cardBg: '#FFFFFF',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Noto Sans KR', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+            background-color: #FFFDF5;
+        }
+        /* Custom Scrollbar for list overflow */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #FFF3E0;
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #FFB74D;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body class="text-gray-800 min-h-screen flex flex-col justify-between selection:bg-amber-200">
+
+    <!-- Top Navigation / Header -->
+    <header class="sticky top-0 z-30 bg-white/90 backdrop-blur-md border-b border-orange-100 shadow-sm">
+        <div class="max-w-6xl mx-auto px-4 py-3 flex justify-between items-center">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-amber-400 to-orange-400 flex items-center justify-center text-white shadow-md text-xl font-black">
+                    ☀️
+                </div>
+                <div>
+                    <h1 class="text-xl font-extrabold text-gray-800 tracking-tight leading-none">
+                        아침해<span class="text-orange-500">썹!</span>
+                    </h1>
+                    <p class="text-xs text-emerald-600 font-medium">청소년 활력 아침식단 플래너</p>
+                </div>
+            </div>
+            <div class="hidden sm:flex items-center space-x-2 text-xs font-semibold bg-amber-50 text-amber-800 py-1.5 px-3 rounded-full border border-amber-200">
+                <span>🧠 아침을 먹으면 집중력 UP!</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="max-w-6xl mx-auto px-4 py-6 w-full flex-grow grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+        <!-- LEFT COLUMN: User Input & Meal Selection (7 Cols on LG) -->
+        <section class="lg:col-span-7 flex flex-col space-y-6">
+
+            <!-- 1. USER PROFILE / CONDITION INPUT CARD -->
+            <div class="bg-white rounded-3xl p-5 shadow-sm border border-amber-100 relative overflow-hidden">
+                <div class="absolute -right-4 -top-4 w-24 h-24 bg-amber-100/50 rounded-full blur-xl pointer-events-none"></div>
+                <h2 class="text-base font-bold text-gray-800 flex items-center mb-3">
+                    <i class="fa-solid fa-user-astronaut text-orange-500 mr-2"></i> 나의 내일 아침 조건 설정
+                </h2>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <!-- Weight Input -->
+                    <div>
+                        <label class="block text-xs font-bold text-gray-600 mb-1">내 몸무게 (kg)</label>
+                        <div class="relative">
+                            <input type="number" id="weightInput" value="55" min="30" max="150" 
+                                class="w-full pl-3 pr-10 py-2 bg-orange-50/50 border border-orange-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-400 text-sm font-bold text-gray-800"
+                                onchange="calculateTargets()" oninput="calculateTargets()">
+                            <span class="absolute right-3 top-2.5 text-xs text-gray-400 font-bold">kg</span>
+                        </div>
+                    </div>
+                    <!-- Eating Capacity Input -->
+                    <div>
+                        <label class="block text-xs font-bold text-gray-600 mb-1">아침 식사량 스타일</label>
+                        <select id="portionInput" class="w-full px-3 py-2 bg-emerald-50/50 border border-emerald-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-400 text-sm font-bold text-gray-800"
+                            onchange="calculateTargets()">
+                            <option value="0.8">소식 (가벼운 아침)</option>
+                            <option value="1.0" selected>보통 (적당한 아침)</option>
+                            <option value="1.2">대식 (든든한 아침)</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 2. RECOMMENDED MENUS CARD SECTION -->
+            <div class="bg-white rounded-3xl p-5 shadow-sm border border-orange-100 flex-grow flex flex-col">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4">
+                    <div>
+                        <h2 class="text-base font-bold text-gray-800 flex items-center">
+                            <i class="fa-solid fa-utensils text-emerald-500 mr-2"></i> ① 추천 아침 메뉴
+                        </h2>
+                        <p class="text-xs text-gray-500">청소년에게 딱 좋은 간편하고 가벼운 아침 식단</p>
+                    </div>
+                    
+                    <!-- Menu Filter Buttons -->
+                    <div class="flex flex-wrap gap-1" id="filterBtnGroup">
+                        <button onclick="filterMenus('all')" class="filter-btn active text-xs px-2.5 py-1 rounded-lg font-bold bg-amber-400 text-gray-900 shadow-sm transition">전체</button>
+                        <button onclick="filterMenus('quick')" class="filter-btn text-xs px-2.5 py-1 rounded-lg font-bold bg-gray-100 text-gray-600 hover:bg-amber-100 transition">⚡초간단</button>
+                        <button onclick="filterMenus('highProtein')" class="filter-btn text-xs px-2.5 py-1 rounded-lg font-bold bg-gray-100 text-gray-600 hover:bg-amber-100 transition">💪고단백</button>
+                        <button onclick="filterMenus('light')" class="filter-btn text-xs px-2.5 py-1 rounded-lg font-bold bg-gray-100 text-gray-600 hover:bg-amber-100 transition">🥗소화쏙</button>
+                    </div>
+                </div>
+
+                <!-- Menu Cards Grid -->
+                <div id="menuGrid" class="grid grid-cols-1 sm:grid-cols-2 gap-3 overflow-y-auto max-h-[450px] pr-1">
+                    <!-- Cards populated dynamically by JS -->
+                </div>
+            </div>
+
+        </section>
+
+
+        <!-- RIGHT COLUMN: Selected Breakfast Dashboard & Nutrition Summary (5 Cols on LG) -->
+        <section class="lg:col-span-5 flex flex-col space-y-6">
+
+            <!-- 3. TODAY'S BREAKFAST MEAL LIST -->
+            <div class="bg-white rounded-3xl p-5 shadow-sm border border-emerald-100 flex flex-col">
+                <div class="flex justify-between items-center mb-3">
+                    <h2 class="text-base font-bold text-gray-800 flex items-center">
+                        <i class="fa-solid fa-basket-shopping text-amber-500 mr-2"></i> ② 오늘의 아침 식단
+                    </h2>
+                    <button onclick="openCustomFoodModal()" class="text-xs bg-emerald-100 hover:bg-emerald-200 text-emerald-800 font-bold px-2.5 py-1 rounded-xl transition flex items-center">
+                        <i class="fa-solid fa-plus mr-1"></i>직접 음식 추가
+                    </button>
+                </div>
+
+                <!-- Selected Meal List Container -->
+                <div id="selectedMealList" class="space-y-2 mb-3 min-h-[140px] max-h-[220px] overflow-y-auto pr-1">
+                    <!-- Dynamically Rendered -->
+                </div>
+
+                <!-- No Nutrition Warning Badge -->
+                <div id="unknownNutritionWarning" class="hidden bg-amber-50 border border-amber-300 rounded-xl p-2.5 text-xs text-amber-800 font-medium flex items-center mb-2">
+                    <i class="fa-solid fa-triangle-exclamation text-amber-500 text-base mr-2 shrink-0"></i>
+                    <span><strong>주의:</strong> 식단에 영양소 정보가 없는 항목이 포함되어 있습니다. (영양소 합계에서 제외됨)</span>
+                </div>
+            </div>
+
+
+            <!-- 4. NUTRITION TOTALS & GOAL GAUGES -->
+            <div class="bg-gradient-to-br from-amber-50/60 via-white to-emerald-50/60 rounded-3xl p-5 shadow-sm border border-amber-200">
+                <h2 class="text-base font-bold text-gray-800 flex items-center mb-1">
+                    <i class="fa-solid fa-chart-pie text-orange-500 mr-2"></i> ③ 영양소 합계 & 권장량 비교
+                </h2>
+                <p class="text-xs text-gray-500 mb-4">아침 식사는 하루 권장 섭취량의 약 25~30%가 적당해요!</p>
+
+                <div class="space-y-4">
+                    <!-- Calorie Progress Bar -->
+                    <div>
+                        <div class="flex justify-between text-xs font-bold mb-1">
+                            <span class="text-gray-700">총 열량 (Calories)</span>
+                            <span id="calText" class="text-orange-600">0 / 0 kcal</span>
+                        </div>
+                        <div class="w-full bg-gray-200 h-3.5 rounded-full overflow-hidden p-0.5">
+                            <div id="calBar" class="bg-gradient-to-r from-amber-400 to-orange-500 h-full rounded-full transition-all duration-500" style="width: 0%"></div>
+                        </div>
+                    </div>
+
+                    <!-- Carbs Progress Bar -->
+                    <div>
+                        <div class="flex justify-between text-xs font-bold mb-1">
+                            <span class="text-gray-700">탄수화물 (Carbs)</span>
+                            <span id="carbText" class="text-amber-600">0 / 0 g</span>
+                        </div>
+                        <div class="w-full bg-gray-200 h-3.5 rounded-full overflow-hidden p-0.5">
+                            <div id="carbBar" class="bg-amber-400 h-full rounded-full transition-all duration-500" style="width: 0%"></div>
+                        </div>
+                    </div>
+
+                    <!-- Protein Progress Bar -->
+                    <div>
+                        <div class="flex justify-between text-xs font-bold mb-1">
+                            <span class="text-gray-700">단백질 (Protein)</span>
+                            <span id="proteinText" class="text-emerald-600">0 / 0 g</span>
+                        </div>
+                        <div class="w-full bg-gray-200 h-3.5 rounded-full overflow-hidden p-0.5">
+                            <div id="proteinBar" class="bg-emerald-400 h-full rounded-full transition-all duration-500" style="width: 0%"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Nutrition Summary Stat Box -->
+                <div class="grid grid-cols-3 gap-2 mt-5 text-center">
+                    <div class="bg-white rounded-2xl p-2.5 border border-orange-100 shadow-xs">
+                        <div class="text-[10px] font-bold text-gray-400">총 열량</div>
+                        <div id="statCal" class="text-sm font-black text-orange-500 mt-0.5">0 kcal</div>
+                    </div>
+                    <div class="bg-white rounded-2xl p-2.5 border border-amber-100 shadow-xs">
+                        <div class="text-[10px] font-bold text-gray-400">탄수화물</div>
+                        <div id="statCarb" class="text-sm font-black text-amber-500 mt-0.5">0 g</div>
+                    </div>
+                    <div class="bg-white rounded-2xl p-2.5 border border-emerald-100 shadow-xs">
+                        <div class="text-[10px] font-bold text-gray-400">단백질</div>
+                        <div id="statProtein" class="text-sm font-black text-emerald-500 mt-0.5">0 g</div>
+                    </div>
+                </div>
+            </div>
+
+
+            <!-- 5. HEALTHY TIPS & PRAISE CARD -->
+            <div id="tipBox" class="bg-emerald-50 rounded-3xl p-4 border border-emerald-200 flex items-start space-x-3">
+                <div class="text-2xl mt-0.5">💡</div>
+                <div>
+                    <h3 id="tipTitle" class="text-xs font-bold text-emerald-900">오늘의 아침 팁</h3>
+                    <p id="tipDesc" class="text-xs text-emerald-800 leading-relaxed mt-0.5">
+                        메뉴를 선택해 식단을 완성해보세요! 아침 식사는 뇌에 에너지를 공급해 수업 집중도를 2배 높여줍니다!
+                    </p>
+                </div>
+            </div>
+
+        </section>
+    </main>
+
+    <!-- Custom Direct Food Addition Modal -->
+    <div id="customFoodModal" class="fixed inset-0 bg-black/40 backdrop-blur-xs flex items-center justify-center p-4 z-50 hidden">
+        <div class="bg-white rounded-3xl p-6 max-w-sm w-full shadow-xl border border-orange-100 relative">
+            <button onclick="closeCustomFoodModal()" class="absolute right-4 top-4 text-gray-400 hover:text-gray-600 text-lg">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+            <h3 class="text-base font-bold text-gray-800 mb-1 flex items-center">
+                <i class="fa-solid fa-pen-to-square text-orange-500 mr-2"></i> 직접 메뉴 추가하기
+            </h3>
+            <p class="text-xs text-gray-500 mb-4">내가 먹는 아침 음식을 직접 등록하세요.</p>
+
+            <div class="space-y-3">
+                <div>
+                    <label class="block text-xs font-bold text-gray-600 mb-1">음식 이름 *</label>
+                    <input type="text" id="customName" placeholder="예: 엄마표 계란말이" class="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-amber-400">
+                </div>
+
+                <!-- Unknown Toggle Checkbox -->
+                <div class="flex items-center space-x-2 bg-amber-50 p-2.5 rounded-xl border border-amber-200">
+                    <input type="checkbox" id="customUnknown" onchange="toggleCustomNutritionInputs()" class="rounded text-amber-500 focus:ring-amber-400">
+                    <label for="customUnknown" class="text-xs font-bold text-amber-900 cursor-pointer">영양소 정보 없음 (모름)</label>
+                </div>
+
+                <!-- Nutrition Inputs (Hideable) -->
+                <div id="customNutritionFields" class="grid grid-cols-3 gap-2">
+                    <div>
+                        <label class="block text-[10px] font-bold text-gray-500 mb-0.5">열량(kcal)</label>
+                        <input type="number" id="customCal" placeholder="0" class="w-full px-2 py-1.5 bg-gray-50 border border-gray-200 rounded-lg text-xs">
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-bold text-gray-500 mb-0.5">탄수화물(g)</label>
+                        <input type="number" id="customCarb" placeholder="0" class="w-full px-2 py-1.5 bg-gray-50 border border-gray-200 rounded-lg text-xs">
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-bold text-gray-500 mb-0.5">단백질(g)</label>
+                        <input type="number" id="customProtein" placeholder="0" class="w-full px-2 py-1.5 bg-gray-50 border border-gray-200 rounded-lg text-xs">
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-5 flex space-x-2">
+                <button onclick="closeCustomFoodModal()" class="w-1/2 py-2.5 rounded-xl bg-gray-100 text-gray-600 text-xs font-bold">취소</button>
+                <button onclick="addCustomFood()" class="w-1/2 py-2.5 rounded-xl bg-gradient-to-r from-amber-400 to-orange-400 text-gray-900 text-xs font-bold shadow-md">추가하기</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notification Toast -->
+    <div id="toast" class="fixed bottom-5 left-1/2 transform -translate-x-1/2 bg-gray-900 text-white text-xs px-4 py-2.5 rounded-full shadow-lg transition-all duration-300 opacity-0 pointer-events-none z-50 flex items-center space-x-2">
+        <span id="toastMsg">메뉴가 추가되었습니다!</span>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-amber-100 py-4 mt-8">
+        <div class="max-w-6xl mx-auto px-4 text-center text-xs text-gray-400">
+            ☀️ 청소년 아침식사 채우기 프로젝트 | 건강한 하루의 시작, 아침해썹!
+        </div>
+    </footer>
+
+
+    <!-- JAVASCRIPT LOGIC -->
+    <script>
+        // 1. RECOMMENDATION PRESET MENU DATA
+        const presetMenus = [
+            {
+                id: 'm1',
+                name: '계란 토스트 & 우유',
+                cal: 360,
+                carb: 42,
+                protein: 16,
+                fat: 14,
+                tags: ['quick', 'highProtein'],
+                icon: '🥪',
+                desc: '단백질 든든, 5분 완성 초간단 아침'
+            },
+            {
+                id: 'm2',
+                name: '바나나 아몬드 쉐이크',
+                cal: 280,
+                carb: 45,
+                protein: 10,
+                fat: 7,
+                tags: ['quick', 'light'],
+                icon: '🥤',
+                desc: '입맛 없는 아침, 갈아서 빠르게'
+            },
+            {
+                id: 'm3',
+                name: '과일 요거트 볼',
+                cal: 240,
+                carb: 38,
+                protein: 12,
+                fat: 4,
+                tags: ['light', 'quick'],
+                icon: '🥣',
+                desc: '유산균과 비타민 가득 상큼한 아침'
+            },
+            {
+                id: 'm4',
+                name: '소고기 야채죽',
+                cal: 320,
+                carb: 52,
+                protein: 14,
+                fat: 6,
+                tags: ['light'],
+                icon: '🍲',
+                desc: '소화가 잘되고 따뜻하게 속을 달래주는 죽'
+            },
+            {
+                id: 'm5',
+                name: '닭가슴살 샐러드 샌드위치',
+                cal: 390,
+                carb: 44,
+                protein: 24,
+                fat: 10,
+                tags: ['highProtein'],
+                icon: '🥙',
+                desc: '고단백 식이섬유로 시험기간 파워업'
+            },
+            {
+                id: 'm6',
+                name: '오트밀 블루베리 죽',
+                cal: 290,
+                carb: 48,
+                protein: 9,
+                fat: 5,
+                tags: ['light', 'quick'],
+                icon: '🫐',
+                desc: '복합 탄수화물로 점심까지 든든하게'
+            },
+            {
+                id: 'm7',
+                name: '치즈 계란말이 & 밥반공기',
+                cal: 410,
+                carb: 40,
+                protein: 20,
+                fat: 16,
+                tags: ['highProtein'],
+                icon: '🍳',
+                desc: '에너지 충전 최강 한식 아침'
+            },
+            {
+                id: 'm8',
+                name: '고구마 1개 & 두유',
+                cal: 260,
+                carb: 46,
+                protein: 9,
+                fat: 4,
+                tags: ['quick', 'light'],
+                icon: '🍠',
+                desc: '자연 그대로의 영양 가득 담백 아침'
+            }
+        ];
+
+        // 2. STATE MANAGEMENT
+        let activeFilter = 'all';
+        let selectedItems = [
+            // Example initial item
+            { ...presetMenus[0], qty: 1 }
+        ];
+
+        // Calculated Nutritional Target Goals (Breakfast = approx 25~30% of Daily Needs)
+        let targetCal = 500;
+        let targetCarb = 75;
+        let targetProtein = 20;
+
+        // 3. INITIALIZATION ON LOAD
+        window.onload = function() {
+            calculateTargets();
+            renderPresetMenus();
+            renderSelectedMeals();
+        };
+
+        // 4. CALCULATE NUTRITIONAL TARGETS BASED ON USER PROFILE
+        function calculateTargets() {
+            const weight = parseFloat(document.getElementById('weightInput').value) || 55;
+            const portionFactor = parseFloat(document.getElementById('portionInput').value) || 1.0;
+
+            // Target calculations tuned for Adolescent Morning Meal
+            // Baseline daily cal ≈ weight * 35 kcal. Morning proportion ≈ 25% * portion factor
+            targetCal = Math.round((weight * 35 * 0.25) * portionFactor);
+            // Carbs ≈ 55% of morning cal / 4
+            targetCarb = Math.round((targetCal * 0.55) / 4);
+            // Protein ≈ weight * 0.3g per morning * portion factor
+            targetProtein = Math.round((weight * 0.32) * portionFactor);
+
+            updateNutritionDashboard();
+        }
+
+        // 5. RENDER PRESET MENU CARDS
+        function renderPresetMenus() {
+            const container = document.getElementById('menuGrid');
+            container.innerHTML = '';
+
+            const filtered = presetMenus.filter(m => {
+                if (activeFilter === 'all') return true;
+                return m.tags.includes(activeFilter);
+            });
+
+            filtered.forEach(menu => {
+                const card = document.createElement('div');
+                card.className = "bg-amber-50/40 hover:bg-amber-50/80 border border-amber-100 rounded-2xl p-3.5 transition flex flex-col justify-between group";
+                card.innerHTML = `
+                    <div>
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="text-2xl p-1 bg-white rounded-xl shadow-xs">${menu.icon}</span>
+                            <span class="text-[11px] font-bold bg-white text-orange-600 px-2 py-0.5 rounded-full border border-orange-100">${menu.cal} kcal</span>
+                        </div>
+                        <h4 class="font-bold text-xs text-gray-800 mb-1">${menu.name}</h4>
+                        <p class="text-[11px] text-gray-500 leading-snug mb-3">${menu.desc}</p>
+                    </div>
+
+                    <div>
+                        <div class="flex items-center justify-between text-[10px] text-gray-500 bg-white/70 px-2 py-1 rounded-lg mb-2 border border-gray-100">
+                            <span>탄 ${menu.carb}g</span>
+                            <span>단 ${menu.protein}g</span>
+                            <span>지 ${menu.fat}g</span>
+                        </div>
+                        <button onclick="addPresetToMeal('${menu.id}')" class="w-full py-1.5 bg-amber-400 hover:bg-amber-500 text-gray-900 font-bold text-xs rounded-xl transition shadow-xs flex items-center justify-center">
+                            <i class="fa-solid fa-plus text-[10px] mr-1.5"></i> 식단에 추가
+                        </button>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        // 6. FILTER MENU HANDLER
+        function filterMenus(tag) {
+            activeFilter = tag;
+            const buttons = document.querySelectorAll('#filterBtnGroup .filter-btn');
+            buttons.forEach(btn => {
+                btn.classList.remove('active', 'bg-amber-400', 'text-gray-900', 'shadow-sm');
+                btn.classList.add('bg-gray-100', 'text-gray-600');
+            });
+            event.target.classList.remove('bg-gray-100', 'text-gray-600');
+            event.target.classList.add('active', 'bg-amber-400', 'text-gray-900', 'shadow-sm');
+            renderPresetMenus();
+        }
+
+        // 7. ADD PRESET ITEM TO MEAL
+        function addPresetToMeal(menuId) {
+            const menu = presetMenus.find(m => m.id === menuId);
+            if (!menu) return;
+
+            const existing = selectedItems.find(item => item.id === menuId);
+            if (existing) {
+                existing.qty += 1;
+            } else {
+                selectedItems.push({
+                    id: menu.id,
+                    name: menu.name,
+                    cal: menu.cal,
+                    carb: menu.carb,
+                    protein: menu.protein,
+                    hasInfo: true,
+                    qty: 1
+                });
+            }
+            showToast(`'${menu.name}' 추가됨!`);
+            renderSelectedMeals();
+        }
+
+        // 8. RENDER SELECTED MEALS LIST
+        function renderSelectedMeals() {
+            const container = document.getElementById('selectedMealList');
+            container.innerHTML = '';
+
+            if (selectedItems.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-8 text-gray-400 text-xs border-2 border-dashed border-gray-100 rounded-2xl">
+                        <i class="fa-solid fa-utensils text-gray-300 text-2xl mb-2"></i>
+                        <p>선택된 식단이 없습니다.<br>추천 메뉴에서 음식을 담아보세요!</p>
+                    </div>
+                `;
+                updateNutritionDashboard();
+                return;
+            }
+
+            selectedItems.forEach((item, index) => {
+                const row = document.createElement('div');
+                row.className = "flex items-center justify-between p-2.5 bg-gray-50/80 rounded-2xl border border-gray-100 text-xs";
+                
+                const nutritionBadge = item.hasInfo 
+                    ? `<span class="text-[10px] text-gray-500">${item.cal * item.qty} kcal (탄 ${item.carb * item.qty}g, 단 ${item.protein * item.qty}g)</span>`
+                    : `<span class="text-[10px] font-bold text-amber-600 bg-amber-100 px-1.5 py-0.5 rounded">영양소 정보 없음</span>`;
+
+                row.innerHTML = `
+                    <div class="flex-grow mr-2">
+                        <div class="font-bold text-gray-800">${item.name}</div>
+                        ${nutritionBadge}
+                    </div>
+
+                    <div class="flex items-center space-x-2">
+                        <!-- Qty Adjuster -->
+                        <div class="flex items-center bg-white rounded-lg border border-gray-200">
+                            <button onclick="changeQty(${index}, -1)" class="px-2 py-0.5 text-gray-500 hover:text-gray-800 font-bold">-</button>
+                            <span class="px-1.5 font-bold text-gray-800">${item.qty}</span>
+                            <button onclick="changeQty(${index}, 1)" class="px-2 py-0.5 text-gray-500 hover:text-gray-800 font-bold">+</button>
+                        </div>
+                        <!-- Delete Button -->
+                        <button onclick="removeMeal(${index})" class="text-gray-400 hover:text-red-500 p-1 transition">
+                            <i class="fa-solid fa-trash-can"></i>
+                        </button>
+                    </div>
+                `;
+                container.appendChild(row);
+            });
+
+            updateNutritionDashboard();
+        }
+
+        // 9. QUANTITY & REMOVE HANDLERS
+        function changeQty(index, delta) {
+            selectedItems[index].qty += delta;
+            if (selectedItems[index].qty <= 0) {
+                selectedItems.splice(index, 1);
+            }
+            renderSelectedMeals();
+        }
+
+        function removeMeal(index) {
+            selectedItems.splice(index, 1);
+            renderSelectedMeals();
+        }
+
+        // 10. UPDATE DASHBOARD & CALCULATE NUTRITION TOTALS
+        function updateNutritionDashboard() {
+            let totalCal = 0;
+            let totalCarb = 0;
+            let totalProtein = 0;
+            let hasUnknownNutrition = false;
+
+            selectedItems.forEach(item => {
+                if (item.hasInfo) {
+                    totalCal += item.cal * item.qty;
+                    totalCarb += item.carb * item.qty;
+                    totalProtein += item.protein * item.qty;
+                } else {
+                    hasUnknownNutrition = true;
+                }
+            });
+
+            // Toggle Warning
+            const warningEl = document.getElementById('unknownNutritionWarning');
+            if (hasUnknownNutrition) {
+                warningEl.classList.remove('hidden');
+            } else {
+                warningEl.classList.add('hidden');
+            }
+
+            // Stat Cards text
+            document.getElementById('statCal').innerText = `${totalCal} kcal`;
+            document.getElementById('statCarb').innerText = `${totalCarb} g`;
+            document.getElementById('statProtein').innerText = `${totalProtein} g`;
+
+            // Progress Bar Labels
+            document.getElementById('calText').innerText = `${totalCal} / ${targetCal} kcal`;
+            document.getElementById('carbText').innerText = `${totalCarb} / ${targetCarb} g`;
+            document.getElementById('proteinText').innerText = `${totalProtein} / ${targetProtein} g`;
+
+            // Progress Bar Percentages
+            const calPct = Math.min(100, Math.round((totalCal / targetCal) * 100)) || 0;
+            const carbPct = Math.min(100, Math.round((totalCarb / targetCarb) * 100)) || 0;
+            const proteinPct = Math.min(100, Math.round((totalProtein / targetProtein) * 100)) || 0;
+
+            document.getElementById('calBar').style.width = `${calPct}%`;
+            document.getElementById('carbBar').style.width = `${carbPct}%`;
+            document.getElementById('proteinBar').style.width = `${proteinPct}%`;
+
+            // Dynamic Tip & Praise Message Update
+            updateTipsAndPraise(calPct, proteinPct);
+        }
+
+        // 11. DYNAMIC TIPS & PRAISE
+        function updateTipsAndPraise(calPct, proteinPct) {
+            const tipTitle = document.getElementById('tipTitle');
+            const tipDesc = document.getElementById('tipDesc');
+            const tipBox = document.getElementById('tipBox');
+
+            if (selectedItems.length === 0) {
+                tipTitle.innerText = "오늘의 아침 팁";
+                tipDesc.innerText = "메뉴를 선택해 식단을 완성해보세요! 아침 식사는 뇌에 에너지를 공급해 수업 집중도를 높여줍니다!";
+                tipBox.className = "bg-emerald-50 rounded-3xl p-4 border border-emerald-200 flex items-start space-x-3";
+                return;
+            }
+
+            if (calPct >= 80 && calPct <= 120 && proteinPct >= 80) {
+                tipTitle.innerText = "🎉 완벽한 아침 식단!";
+                tipDesc.innerText = "에너지와 단백질 비율이 훌륭해요. 오늘 하루 높은 집중력과 체력을 유지할 수 있을 거예요!";
+                tipBox.className = "bg-amber-100 rounded-3xl p-4 border border-amber-300 flex items-start space-x-3";
+            } else if (calPct < 60) {
+                tipTitle.innerText = "💡 조금 더 든든하게 채워볼까요?";
+                tipDesc.innerText = "권장 칼로리보다 부족해요. 바나나나 계란 하나를 더 추가하면 아침 졸음을 예방할 수 있어요!";
+                tipBox.className = "bg-orange-50 rounded-3xl p-4 border border-orange-200 flex items-start space-x-3";
+            } else if (proteinPct < 70) {
+                tipTitle.innerText = "💪 단백질 섭취 보충 팁";
+                tipDesc.innerText = "탄수화물 위주 식단이에요. 계란, 우유, 두유 등 단백질 식품을 함께 곁들이면 포만감이 오래가요!";
+                tipBox.className = "bg-teal-50 rounded-3xl p-4 border border-teal-200 flex items-start space-x-3";
+            } else {
+                tipTitle.innerText = "👍 아주 좋아요!";
+                tipDesc.innerText = "아침을 챙겨 먹는 좋은 습관이 건강한 청소년기를 만들어갑니다. 내일도 화이팅!";
+                tipBox.className = "bg-emerald-50 rounded-3xl p-4 border border-emerald-200 flex items-start space-x-3";
+            }
+        }
+
+        // 12. CUSTOM FOOD MODAL LOGIC
+        function openCustomFoodModal() {
+            document.getElementById('customName').value = '';
+            document.getElementById('customCal').value = '';
+            document.getElementById('customCarb').value = '';
+            document.getElementById('customProtein').value = '';
+            document.getElementById('customUnknown').checked = false;
+            toggleCustomNutritionInputs();
+            document.getElementById('customFoodModal').classList.remove('hidden');
+        }
+
+        function closeCustomFoodModal() {
+            document.getElementById('customFoodModal').classList.add('hidden');
+        }
+
+        function toggleCustomNutritionInputs() {
+            const isUnknown = document.getElementById('customUnknown').checked;
+            const fields = document.getElementById('customNutritionFields');
+            if (isUnknown) {
+                fields.classList.add('opacity-40', 'pointer-events-none');
+            } else {
+                fields.classList.remove('opacity-40', 'pointer-events-none');
+            }
+        }
+
+        function addCustomFood() {
+            const name = document.getElementById('customName').value.trim();
+            if (!name) {
+                alert('음식 이름을 입력해주세요!');
+                return;
+            }
+
+            const isUnknown = document.getElementById('customUnknown').checked;
+            const cal = parseFloat(document.getElementById('customCal').value) || 0;
+            const carb = parseFloat(document.getElementById('customCarb').value) || 0;
+            const protein = parseFloat(document.getElementById('customProtein').value) || 0;
+
+            selectedItems.push({
+                id: 'custom_' + Date.now(),
+                name: name,
+                cal: cal,
+                carb: carb,
+                protein: protein,
+                hasInfo: !isUnknown,
+                qty: 1
+            });
+
+            closeCustomFoodModal();
+            renderSelectedMeals();
+            showToast(`'${name}' 직접 추가됨!`);
+        }
+
+        // 13. TOAST NOTIFICATION
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            const toastMsg = document.getElementById('toastMsg');
+            toastMsg.innerText = message;
+            toast.classList.remove('opacity-0', 'pointer-events-none');
+            toast.classList.add('opacity-100');
+
+            setTimeout(() => {
+                toast.classList.remove('opacity-100');
+                toast.classList.add('opacity-0', 'pointer-events-none');
+            }, 2000);
+        }
+    </script>
+</body>
+</html>
