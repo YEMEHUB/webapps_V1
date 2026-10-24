@@ -1,1 +1,620 @@
 
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Health Quest - 식단 설계 & 열량 퀘스트</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts (Press Start 2P & Noto Sans KR) -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;800&family=Press+Start+2P&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+            background-color: #0f172a;
+            color: #f8fafc;
+        }
+        .font-pixel {
+            font-family: 'Press Start 2P', cursive;
+        }
+        /* Custom Gaming UI Shadows & Borders */
+        .pixel-card {
+            background: #1e293b;
+            border: 4px solid #3b82f6;
+            box-shadow: 0 8px 0 0 #1d4ed8, inset 0 0 10px rgba(59, 130, 246, 0.2);
+        }
+        .pixel-card-danger {
+            background: #1e293b;
+            border: 4px solid #ef4444;
+            box-shadow: 0 8px 0 0 #b91c1c, inset 0 0 10px rgba(239, 68, 68, 0.2);
+        }
+        .pixel-card-success {
+            background: #1e293b;
+            border: 4px solid #10b981;
+            box-shadow: 0 8px 0 0 #047857, inset 0 0 10px rgba(16, 185, 129, 0.2);
+        }
+        .pixel-btn {
+            transition: all 0.1s ease;
+            box-shadow: 0 5px 0 0 #1d4ed8;
+        }
+        .pixel-btn:hover {
+            transform: translateY(2px);
+            box-shadow: 0 3px 0 0 #1d4ed8;
+        }
+        .pixel-btn:active {
+            transform: translateY(5px);
+            box-shadow: 0 0px 0 0 #1d4ed8;
+        }
+        .pixel-btn-accent {
+            background-color: #f59e0b;
+            border: 2px solid #fef08a;
+            box-shadow: 0 5px 0 0 #b45309;
+            color: #1e293b;
+        }
+        .pixel-btn-accent:hover {
+            transform: translateY(2px);
+            box-shadow: 0 3px 0 0 #b45309;
+        }
+        .pixel-btn-accent:active {
+            transform: translateY(5px);
+            box-shadow: 0 0px 0 0 #b45309;
+        }
+        /* Progress Bar Animation */
+        .hp-bar {
+            transition: width 0.5s ease-in-out;
+        }
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0f172a;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #3b82f6;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body class="min-h-screen pb-12">
+
+    <!-- Header Navigation -->
+    <header class="bg-slate-900 border-b-4 border-blue-600 sticky top-0 z-50 px-4 py-3 shadow-lg">
+        <div class="max-w-4xl mx-auto flex justify-between items-center">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center text-xl text-yellow-300 font-pixel border-2 border-yellow-400">
+                    <i class="fa-solid fa-shield-halved"></i>
+                </div>
+                <h1 class="text-xl md:text-2xl font-bold font-pixel text-yellow-400 tracking-wider">HEALTH QUEST</h1>
+            </div>
+            <div class="flex items-center space-x-2">
+                <span id="userLV" class="bg-blue-900 text-blue-200 text-xs font-pixel px-3 py-1.5 rounded-full border border-blue-400">LV.1 HERO</span>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-4xl mx-auto px-4 mt-6">
+
+        <!-- STEP 1: Personal Info Input (Character Creation) -->
+        <section id="profileSection" class="pixel-card p-6 rounded-2xl mb-8">
+            <div class="flex items-center justify-between mb-4 border-b-2 border-slate-700 pb-3">
+                <h2 class="text-lg md:text-xl font-bold text-yellow-400 flex items-center gap-2">
+                    <i class="fa-solid fa-user-gear"></i> 캐릭터 스탯 설정 (개인정보 입력)
+                </h2>
+                <span class="text-xs bg-slate-800 text-slate-300 px-2 py-1 rounded">모든 연령 대응</span>
+            </div>
+
+            <form id="profileForm" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-xs font-bold text-slate-300 mb-1">성별</label>
+                    <div class="grid grid-cols-2 gap-2">
+                        <button type="button" onclick="setGender('male')" id="btnMale" class="py-2 rounded-lg font-bold border-2 border-slate-600 bg-slate-800 text-slate-300 hover:border-blue-400">
+                            <i class="fa-solid fa-mars mr-1"></i> 남성
+                        </button>
+                        <button type="button" onclick="setGender('female')" id="btnFemale" class="py-2 rounded-lg font-bold border-2 border-slate-600 bg-slate-800 text-slate-300 hover:border-pink-400">
+                            <i class="fa-solid fa-venus mr-1"></i> 여성
+                        </button>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-slate-300 mb-1">나이 (세)</label>
+                    <input type="number" id="inputAge" min="1" max="120" placeholder="예: 25" required class="w-full bg-slate-900 border-2 border-slate-700 rounded-lg p-2 text-white focus:outline-none focus:border-blue-500">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-slate-300 mb-1">신장 (cm)</label>
+                    <input type="number" id="inputHeight" min="50" max="250" placeholder="예: 175" required class="w-full bg-slate-900 border-2 border-slate-700 rounded-lg p-2 text-white focus:outline-none focus:border-blue-500">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-slate-300 mb-1">현재 체중 (kg)</label>
+                    <input type="number" id="inputWeight" step="0.1" min="10" max="300" placeholder="예: 85" required class="w-full bg-slate-900 border-2 border-slate-700 rounded-lg p-2 text-white focus:outline-none focus:border-blue-500">
+                </div>
+
+                <div class="md:col-span-2">
+                    <label class="block text-xs font-bold text-slate-300 mb-1">활동량 레벨</label>
+                    <select id="inputActivity" class="w-full bg-slate-900 border-2 border-slate-700 rounded-lg p-2 text-white focus:outline-none focus:border-blue-500">
+                        <option value="1.2">거의 운동하지 않음 (앉아서 생활)</option>
+                        <option value="1.375">가벼운 활동 (주 1~3회 가벼운 운동)</option>
+                        <option value="1.55" selected>보통 활동 (주 3~5회 적당한 운동)</option>
+                        <option value="1.725">적극적인 활동 (주 6~7회 강한 운동)</option>
+                        <option value="1.9">매우 왕성한 활동 (매일 고강도 운동/육체 노동)</option>
+                    </select>
+                </div>
+
+                <div class="md:col-span-2 mt-2">
+                    <button type="submit" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 px-4 rounded-xl pixel-btn border-2 border-blue-300 text-lg flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-calculator"></i> 스탯 계산 & 퀘스트 시작
+                    </button>
+                </div>
+            </form>
+        </section>
+
+        <!-- RESULT & DASHBOARD SECTION -->
+        <section id="dashboardSection" class="hidden space-y-6">
+
+            <!-- BMI Status Warning Alert Banner -->
+            <div id="obesityAlert" class="pixel-card-danger p-5 rounded-2xl flex flex-col md:flex-row items-center justify-between gap-4">
+                <div class="flex items-center gap-4">
+                    <div class="text-4xl text-red-500 animate-bounce">
+                        <i class="fa-solid fa-triangle-exclamation"></i>
+                    </div>
+                    <div>
+                        <span id="obesityBadge" class="bg-red-600 text-white text-xs px-2 py-0.5 rounded font-pixel">STATUS: OBESE</span>
+                        <h3 id="obesityTitle" class="text-xl font-bold text-red-400 mt-1">⚠️ 비만 경보! 보스몹 감지됨!</h3>
+                        <p id="obesityDesc" class="text-slate-300 text-sm mt-1">체질량지수(BMI) 분석 결과, 체중 관리가 필요한 비만 상태입니다. 맞춤 퀘스트 식단으로 체중 디버프를 해제하세요!</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Dashboard Stats Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <!-- BMI Card -->
+                <div class="bg-slate-800 border-2 border-slate-700 rounded-xl p-4 flex flex-col justify-between">
+                    <div class="flex justify-between items-start">
+                        <span class="text-xs font-bold text-slate-400">BMI 지수</span>
+                        <i class="fa-solid fa-weight-scale text-slate-500"></i>
+                    </div>
+                    <div class="mt-2">
+                        <span id="displayBMI" class="text-3xl font-extrabold text-yellow-400">28.5</span>
+                        <span id="displayBMILabel" class="text-xs font-bold px-2 py-0.5 rounded ml-2 bg-red-900 text-red-300 border border-red-500">비만</span>
+                    </div>
+                    <p class="text-[11px] text-slate-400 mt-2">비만 기준: BMI 25 이상</p>
+                </div>
+
+                <!-- BMR Card -->
+                <div class="bg-slate-800 border-2 border-slate-700 rounded-xl p-4 flex flex-col justify-between">
+                    <div class="flex justify-between items-start">
+                        <span class="text-xs font-bold text-slate-400">기초대사량 (BMR)</span>
+                        <i class="fa-solid fa-heart-pulse text-slate-500"></i>
+                    </div>
+                    <div class="mt-2">
+                        <span id="displayBMR" class="text-3xl font-extrabold text-blue-400">1,750</span>
+                        <span class="text-sm font-bold text-slate-400">kcal</span>
+                    </div>
+                    <p class="text-[11px] text-slate-400 mt-2">숨만 쉬어도 소비되는 기본 열량</p>
+                </div>
+
+                <!-- Target Calorie Card -->
+                <div class="bg-slate-800 border-2 border-slate-700 rounded-xl p-4 flex flex-col justify-between border-blue-500">
+                    <div class="flex justify-between items-start">
+                        <span class="text-xs font-bold text-blue-400">목표 감량 열량 (일일)</span>
+                        <i class="fa-solid fa-bullseye text-yellow-400"></i>
+                    </div>
+                    <div class="mt-2">
+                        <span id="displayTargetCal" class="text-3xl font-extrabold text-green-400">1,900</span>
+                        <span class="text-sm font-bold text-slate-400">kcal</span>
+                    </div>
+                    <p class="text-[11px] text-green-300 mt-2">건강한 감량을 위한 추천 일일 섭취량</p>
+                </div>
+            </div>
+
+            <!-- TODAY'S CALORIE MANA BAR (오늘의 총 열량) -->
+            <div class="pixel-card p-6 rounded-2xl">
+                <div class="flex flex-col md:flex-row md:items-center justify-between gap-2 mb-4">
+                    <div>
+                        <h3 class="text-lg font-bold text-yellow-400 flex items-center gap-2">
+                            <i class="fa-solid fa-bolt"></i> 오늘의 총 칼로리 게이지
+                        </h3>
+                        <p class="text-xs text-slate-400">오늘 섭취한 음식을 추가하여 칼로리 넘침을 방지하세요!</p>
+                    </div>
+                    <div class="text-right">
+                        <span id="calorieStatusText" class="text-xs font-bold px-2.5 py-1 rounded bg-green-900 text-green-300 border border-green-500">안전 범위</span>
+                    </div>
+                </div>
+
+                <!-- Progress Bar -->
+                <div class="space-y-2">
+                    <div class="flex justify-between text-sm font-bold">
+                        <span>현재 섭취: <span id="currentTotalCal" class="text-yellow-400 text-lg">0</span> kcal</span>
+                        <span>목표: <span id="maxTargetCal" class="text-slate-300">1,900</span> kcal</span>
+                    </div>
+                    <div class="w-full bg-slate-900 rounded-full h-6 p-1 border-2 border-slate-700 overflow-hidden relative">
+                        <div id="calorieProgressBar" class="hp-bar bg-gradient-to-r from-emerald-500 to-green-400 h-full rounded-full w-0"></div>
+                    </div>
+                    <div class="flex justify-between text-[11px] text-slate-400">
+                        <span>0 kcal</span>
+                        <span id="remainingCalText">남은 가능 열량: 1,900 kcal</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- MEAL MANAGEMENT & RECOMMENDATION TABS -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+                <!-- Left Column: Diet Management (Meal Log) -->
+                <div class="bg-slate-800 border-2 border-slate-700 rounded-2xl p-5 flex flex-col justify-between">
+                    <div>
+                        <div class="flex justify-between items-center mb-4 border-b border-slate-700 pb-2">
+                            <h3 class="font-bold text-white flex items-center gap-2">
+                                <i class="fa-solid fa-utensils text-yellow-400"></i> 오늘의 식단 기록 (관리)
+                            </h3>
+                            <button onclick="clearAllMeals()" class="text-xs text-slate-400 hover:text-red-400 underline">초기화</button>
+                        </div>
+
+                        <!-- Add Meal Form -->
+                        <form id="addMealForm" class="flex gap-2 mb-4">
+                            <input type="text" id="mealNameInput" placeholder="음식 이름 (예: 닭가슴살 샐러드)" required class="flex-1 bg-slate-900 border border-slate-600 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-blue-400">
+                            <input type="number" id="mealCalInput" placeholder="열량(kcal)" min="0" required class="w-24 bg-slate-900 border border-slate-600 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-blue-400">
+                            <button type="submit" class="bg-green-600 hover:bg-green-500 text-white text-sm font-bold px-3 py-2 rounded-lg pixel-btn border border-green-300 whitespace-nowrap">
+                                <i class="fa-solid fa-plus"></i> 추가
+                            </button>
+                        </form>
+
+                        <!-- Meal List -->
+                        <div id="mealList" class="space-y-2 max-h-60 overflow-y-auto pr-1">
+                            <!-- Items added dynamically -->
+                            <p id="emptyMealNotice" class="text-center text-xs text-slate-500 py-6">아직 기록된 식단이 없습니다. 음식을 등록해 보세요!</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Column: Meal Recommendation AI Quest -->
+                <div class="bg-slate-800 border-2 border-slate-700 rounded-2xl p-5">
+                    <div class="flex justify-between items-center mb-4 border-b border-slate-700 pb-2">
+                        <h3 class="font-bold text-white flex items-center gap-2">
+                            <i class="fa-solid fa-wand-magic-sparkles text-purple-400"></i> 추천 맞춤 식단 (퀘스트)
+                        </h3>
+                        <button onclick="refreshRecommendations()" class="text-xs bg-purple-900/60 text-purple-300 hover:bg-purple-800 px-2 py-1 rounded border border-purple-500">
+                            <i class="fa-solid fa-rotate-right"></i> 새 음식 새로고침
+                        </button>
+                    </div>
+
+                    <p class="text-xs text-slate-400 mb-3">비만 극복에 효과적인 저열량 고단백 추천 메뉴입니다. 클릭하면 식단에 추가됩니다.</p>
+
+                    <div id="recommendationList" class="space-y-2">
+                        <!-- Dynamic Recommendations -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- RESET PROFILE BUTTON -->
+            <div class="text-center pt-4">
+                <button onclick="resetProfile()" class="text-xs text-slate-500 hover:text-slate-300 underline">
+                    <i class="fa-solid fa-rotate-left"></i> 캐릭터 신체 정보 재설정
+                </button>
+            </div>
+
+        </section>
+
+    </main>
+
+    <!-- Custom Modal Toast Message -->
+    <div id="toast" class="fixed bottom-5 right-5 hidden bg-slate-900 border-2 border-yellow-400 text-yellow-300 px-4 py-3 rounded-xl shadow-2xl z-50 flex items-center gap-2">
+        <i id="toastIcon" class="fa-solid fa-circle-check text-green-400"></i>
+        <span id="toastMsg" class="text-sm font-bold">식단에 추가되었습니다!</span>
+    </div>
+
+    <script>
+        // --- APP STATE ---
+        let userProfile = {
+            gender: 'male',
+            age: null,
+            height: null,
+            weight: null,
+            activity: 1.55,
+            bmr: 0,
+            tdee: 0,
+            targetCalories: 0,
+            bmi: 0,
+            isObese: false
+        };
+
+        let meals = [];
+
+        // Sample Recommendation Database (High Protein / Low Density)
+        const presetMeals = [
+            { name: "닭가슴살 & 현미밥 정식", cal: 420, tag: "고단백", icon: "fa-drumstick-bite" },
+            { name: "연어 아보카도 샐러드", cal: 380, tag: "좋은지방", icon: "fa-fish" },
+            { name: "소고기 우둔살 야채구이", cal: 450, tag: "벌크/근력", icon: "fa-meat" },
+            { name: "두부 곤약 면 국수", cal: 210, tag: "초저열량", icon: "fa-bowl-rice" },
+            { name: "계란 2개 + 고구마 1개", cal: 280, tag: "간편식", icon: "fa-egg" },
+            { name: "그릭 요거트 & 베리류", cal: 180, tag: "디저트/디톡스", icon: "fa-apple-whole" },
+            { name: "오트밀 프로틴 쉐이크", cal: 250, tag: "빠른충전", icon: "fa-mug-hot" },
+            { name: "해산물 곤약 볶음밥", cal: 330, tag: "포만감Up", icon: "fa-shrimp" }
+        ];
+
+        // --- GENDER SELECTOR ---
+        function setGender(gender) {
+            userProfile.gender = gender;
+            const btnMale = document.getElementById('btnMale');
+            const btnFemale = document.getElementById('btnFemale');
+
+            if (gender === 'male') {
+                btnMale.className = 'py-2 rounded-lg font-bold border-2 border-blue-500 bg-blue-900/60 text-blue-200';
+                btnFemale.className = 'py-2 rounded-lg font-bold border-2 border-slate-600 bg-slate-800 text-slate-300 hover:border-pink-400';
+            } else {
+                btnFemale.className = 'py-2 rounded-lg font-bold border-2 border-pink-500 bg-pink-900/60 text-pink-200';
+                btnMale.className = 'py-2 rounded-lg font-bold border-2 border-slate-600 bg-slate-800 text-slate-300 hover:border-blue-400';
+            }
+        }
+
+        // Initialize gender button style
+        setGender('male');
+
+        // --- FORM SUBMIT (CALCULATIONS) ---
+        document.getElementById('profileForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const age = parseInt(document.getElementById('inputAge').value);
+            const height = parseFloat(document.getElementById('inputHeight').value);
+            const weight = parseFloat(document.getElementById('inputWeight').value);
+            const activity = parseFloat(document.getElementById('inputActivity').value);
+
+            if (!age || !height || !weight) return;
+
+            userProfile.age = age;
+            userProfile.height = height;
+            userProfile.weight = weight;
+            userProfile.activity = activity;
+
+            // 1. BMI Calculation (kg / m^2)
+            const heightInMeters = height / 100;
+            const bmi = weight / (heightInMeters * heightInMeters);
+            userProfile.bmi = parseFloat(bmi.toFixed(1));
+
+            // Asian-Pacific Obesity Standard: BMI 25 or higher = Obese
+            userProfile.isObese = userProfile.bmi >= 25;
+
+            // 2. BMR Calculation (Mifflin-St Jeor Equation)
+            let bmr = (10 * weight) + (6.25 * height) - (5 * age);
+            if (userProfile.gender === 'male') {
+                bmr += 5;
+            } else {
+                bmr -= 161;
+            }
+            userProfile.bmr = Math.round(bmr);
+
+            // 3. TDEE (Total Daily Energy Expenditure) & Target Calories for Weight Loss
+            userProfile.tdee = Math.round(userProfile.bmr * activity);
+
+            // For obesity management: Recommend ~500 kcal deficit (or ~20-25% reduction for safety)
+            const deficit = userProfile.isObese ? 500 : 300;
+            userProfile.targetCalories = Math.max(1200, userProfile.tdee - deficit); // Ensure minimum safe intake
+
+            // Update UI
+            renderDashboard();
+
+            // Hide Profile, Show Dashboard
+            document.getElementById('profileSection').classList.add('hidden');
+            document.getElementById('dashboardSection').classList.remove('hidden');
+
+            showToast("캐릭터 정보 생성 완료! 퀘스트가 시작되었습니다.");
+        });
+
+        // --- RENDER DASHBOARD ---
+        function renderDashboard() {
+            // Render Stats
+            document.getElementById('displayBMI').innerText = userProfile.bmi;
+            document.getElementById('displayBMR').innerText = userProfile.bmr.toLocaleString();
+            document.getElementById('displayTargetCal').innerText = userProfile.targetCalories.toLocaleString();
+            document.getElementById('maxTargetCal').innerText = userProfile.targetCalories.toLocaleString();
+
+            // BMI Label & Obesity Alert Logic
+            const bmiLabel = document.getElementById('displayBMILabel');
+            const alertBox = document.getElementById('obesityAlert');
+            const badge = document.getElementById('obesityBadge');
+            const title = document.getElementById('obesityTitle');
+            const desc = document.getElementById('obesityDesc');
+
+            if (userProfile.bmi >= 30) {
+                bmiLabel.innerText = "고도비만";
+                bmiLabel.className = "text-xs font-bold px-2 py-0.5 rounded ml-2 bg-red-950 text-red-300 border border-red-600";
+                alertBox.className = "pixel-card-danger p-5 rounded-2xl flex flex-col md:flex-row items-center justify-between gap-4";
+                badge.innerText = "CRITICAL: LEVEL 2 OBESE";
+                title.innerText = "🚨 고도비만 보스몹 출현!";
+                desc.innerText = "체중 관리가 시급합니다! 칼로리 조절 식단 퀘스트를 통해 꾸준히 체중 감소 디버프를 완료하세요.";
+                alertBox.classList.remove('hidden');
+            } else if (userProfile.bmi >= 25) {
+                bmiLabel.innerText = "비만";
+                bmiLabel.className = "text-xs font-bold px-2 py-0.5 rounded ml-2 bg-orange-900 text-orange-300 border border-orange-500";
+                alertBox.className = "pixel-card-danger p-5 rounded-2xl flex flex-col md:flex-row items-center justify-between gap-4";
+                badge.innerText = "WARNING: OBESE STATUS";
+                title.innerText = "⚠️ 비만 상태 경보!";
+                desc.innerText = "체질량지수(BMI) 분석 결과 비만 단계입니다. 일일 목표 열량 이하로 식단을 조절하여 건강을 회복하세요!";
+                alertBox.classList.remove('hidden');
+            } else if (userProfile.bmi >= 23) {
+                bmiLabel.innerText = "과체중";
+                bmiLabel.className = "text-xs font-bold px-2 py-0.5 rounded ml-2 bg-yellow-900 text-yellow-300 border border-yellow-500";
+                alertBox.className = "pixel-card p-5 rounded-2xl flex flex-col md:flex-row items-center justify-between gap-4";
+                badge.innerText = "CAUTION: OVERWEIGHT";
+                badge.className = "bg-yellow-600 text-white text-xs px-2 py-0.5 rounded font-pixel";
+                title.innerText = "⚡ 과체중 경고";
+                title.className = "text-xl font-bold text-yellow-400 mt-1";
+                desc.innerText = "비만 위험 단계입니다. 식단 추천 항목을 활용하여 미리 칼로리를 관리해 보세요!";
+                alertBox.classList.remove('hidden');
+            } else {
+                bmiLabel.innerText = "정상";
+                bmiLabel.className = "text-xs font-bold px-2 py-0.5 rounded ml-2 bg-green-900 text-green-300 border border-green-500";
+                alertBox.classList.add('hidden'); // Hide warning for normal weight
+            }
+
+            // Render Recommendations
+            refreshRecommendations();
+
+            // Update Meal Calorie Calculation
+            updateCalorieProgress();
+        }
+
+        // --- MEAL MANAGEMENT LOGIC ---
+        document.getElementById('addMealForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const nameInput = document.getElementById('mealNameInput');
+            const calInput = document.getElementById('mealCalInput');
+
+            const name = nameInput.value.trim();
+            const cal = parseInt(calInput.value);
+
+            if (name && !isNaN(cal)) {
+                addMeal(name, cal);
+                nameInput.value = '';
+                calInput.value = '';
+            }
+        });
+
+        function addMeal(name, cal) {
+            meals.push({ id: Date.now(), name: name, cal: cal });
+            renderMealList();
+            updateCalorieProgress();
+            showToast(`'${name}' (${cal} kcal) 식단 추가!`);
+        }
+
+        function removeMeal(id) {
+            meals = meals.filter(m => m.id !== id);
+            renderMealList();
+            updateCalorieProgress();
+        }
+
+        function clearAllMeals() {
+            if (meals.length === 0) return;
+            meals = [];
+            renderMealList();
+            updateCalorieProgress();
+            showToast("오늘의 식단 기록이 초기화되었습니다.");
+        }
+
+        function renderMealList() {
+            const container = document.getElementById('mealList');
+            const emptyNotice = document.getElementById('emptyMealNotice');
+
+            if (meals.length === 0) {
+                container.innerHTML = '';
+                container.appendChild(emptyNotice);
+                emptyNotice.classList.remove('hidden');
+                return;
+            }
+
+            container.innerHTML = meals.map(meal => `
+                <div class="bg-slate-900/80 border border-slate-700 rounded-lg p-2.5 flex justify-between items-center transition hover:border-slate-500">
+                    <div class="flex items-center gap-2">
+                        <span class="w-2 h-2 rounded-full bg-blue-400"></span>
+                        <span class="text-sm font-semibold text-slate-200">${escapeHtml(meal.name)}</span>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <span class="text-xs font-pixel text-yellow-400">+${meal.cal} kcal</span>
+                        <button onclick="removeMeal(${meal.id})" class="text-slate-500 hover:text-red-400 text-xs p-1">
+                            <i class="fa-solid fa-trash-can"></i>
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // --- CALORIE PROGRESS & OVERFLOW WARNING ---
+        function updateCalorieProgress() {
+            const totalCal = meals.reduce((sum, meal) => sum + meal.cal, 0);
+            const target = userProfile.targetCalories || 2000;
+
+            document.getElementById('currentTotalCal').innerText = totalCal.toLocaleString();
+
+            const percentage = Math.min(100, Math.round((totalCal / target) * 100));
+            const progressBar = document.getElementById('calorieProgressBar');
+            const statusText = document.getElementById('calorieStatusText');
+            const remainingText = document.getElementById('remainingCalText');
+
+            progressBar.style.width = `${percentage}%`;
+
+            const remaining = target - totalCal;
+
+            if (remaining >= 0) {
+                remainingText.innerText = `남은 가능 열량: ${remaining.toLocaleString()} kcal`;
+                remainingText.className = "text-[11px] text-slate-400";
+            } else {
+                remainingText.innerText = `⚠️ 목표 초과: ${Math.abs(remaining).toLocaleString()} kcal Over!`;
+                remainingText.className = "text-[11px] text-red-400 font-bold";
+            }
+
+            // Color status based on calorie usage
+            if (percentage > 100) {
+                progressBar.className = "hp-bar bg-gradient-to-r from-red-600 to-red-500 h-full rounded-full animate-pulse";
+                statusText.innerText = "🔥 칼로리 초과 (경고)";
+                statusText.className = "text-xs font-bold px-2.5 py-1 rounded bg-red-900 text-red-200 border border-red-500";
+            } else if (percentage >= 85) {
+                progressBar.className = "hp-bar bg-gradient-to-r from-yellow-500 to-orange-500 h-full rounded-full";
+                statusText.innerText = "⚠️ 칼로리임계점 도달";
+                statusText.className = "text-xs font-bold px-2.5 py-1 rounded bg-yellow-900 text-yellow-200 border border-yellow-500";
+            } else {
+                progressBar.className = "hp-bar bg-gradient-to-r from-emerald-500 to-green-400 h-full rounded-full";
+                statusText.innerText = "🟢 안전 범위";
+                statusText.className = "text-xs font-bold px-2.5 py-1 rounded bg-green-900 text-green-300 border border-green-500";
+            }
+        }
+
+        // --- MEAL RECOMMENDATIONS ---
+        function refreshRecommendations() {
+            const container = document.getElementById('recommendationList');
+            // Shuffle array
+            const shuffled = [...presetMeals].sort(() => 0.5 - Math.random()).slice(0, 4);
+
+            container.innerHTML = shuffled.map(item => `
+                <div class="bg-slate-900 border border-slate-700 hover:border-purple-500 p-3 rounded-xl flex items-center justify-between transition cursor-pointer group" onclick="addMeal('${item.name}', ${item.cal})">
+                    <div class="flex items-center gap-3">
+                        <div class="w-9 h-9 bg-purple-950/80 border border-purple-500 rounded-lg flex items-center justify-center text-purple-300 group-hover:scale-110 transition">
+                            <i class="fa-solid ${item.icon}"></i>
+                        </div>
+                        <div>
+                            <div class="flex items-center gap-2">
+                                <h4 class="text-xs md:text-sm font-bold text-white group-hover:text-purple-300">${item.name}</h4>
+                                <span class="text-[10px] bg-slate-800 text-slate-400 px-1.5 py-0.5 rounded border border-slate-700">${item.tag}</span>
+                            </div>
+                            <span class="text-xs text-yellow-400 font-pixel">${item.cal} kcal</span>
+                        </div>
+                    </div>
+                    <button class="text-xs bg-slate-800 group-hover:bg-purple-600 text-slate-300 group-hover:text-white px-2.5 py-1.5 rounded-lg border border-slate-600 group-hover:border-purple-400 transition">
+                        + 장착
+                    </button>
+                </div>
+            `).join('');
+        }
+
+        // --- RESET PROFILE ---
+        function resetProfile() {
+            document.getElementById('dashboardSection').classList.add('hidden');
+            document.getElementById('profileSection').classList.remove('hidden');
+        }
+
+        // --- TOAST NOTIFICATION ---
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            const msgSpan = document.getElementById('toastMsg');
+            msgSpan.innerText = message;
+            toast.classList.remove('hidden');
+
+            setTimeout(() => {
+                toast.classList.add('hidden');
+            }, 2500);
+        }
+
+        // Helper to prevent XSS
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.innerText = text;
+            return div.innerHTML;
+        }
+    </script>
+</body>
+</html>
