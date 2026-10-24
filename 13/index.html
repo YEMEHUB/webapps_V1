@@ -1,1 +1,675 @@
 
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>아침 루틴 대작전 - 아침결식 해결 맞춤 가이드</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome for Cute & Bright Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts: Gaegu & Noto Sans KR -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Gaegu:wght@400;700&family=Noto+Sans+KR:wght@400;500;700;800&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            yellow: '#FEF08A',
+                            peach: '#FFEDD5',
+                            cream: '#FEFCE8',
+                            green: '#86EFAC',
+                            darkGreen: '#15803D',
+                            coral: '#FF7E67',
+                            softOrange: '#FFB84C'
+                        }
+                    },
+                    fontFamily: {
+                        cute: ['Gaegu', 'cursive'],
+                        sans: ['Noto Sans KR', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+            background-color: #FEFCE8;
+            background-image: radial-gradient(#FDE047 1px, transparent 1px);
+            background-size: 24px 24px;
+        }
+        .cute-font {
+            font-family: 'Gaegu', cursive;
+        }
+        .card-shadow {
+            box-shadow: 0 10px 25px -5px rgba(251, 191, 36, 0.2), 0 8px 10px -6px rgba(251, 191, 36, 0.1);
+        }
+        .bounce-slow {
+            animation: bounce 2s infinite;
+        }
+        @keyframes bounce {
+            0%, 100% { transform: translateY(-3%); }
+            50% { transform: translateY(0); }
+        }
+    </style>
+</head>
+<body class="min-h-screen text-gray-800 pb-12">
+
+    <!-- Header Section -->
+    <header class="w-full bg-white/90 backdrop-blur-md border-b border-emerald-100 sticky top-0 z-50 py-3 px-4 shadow-sm">
+        <div class="max-w-md mx-auto flex items-center justify-between">
+            <div class="flex items-center gap-2.5">
+                <div class="w-10 h-10 bg-emerald-100 text-emerald-600 rounded-2xl flex items-center justify-center text-xl font-bold shadow-inner">
+                    🌱
+                </div>
+                <div>
+                    <h1 class="text-lg font-bold text-emerald-950 leading-tight">모닝밸런스</h1>
+                    <p class="text-[11px] text-emerald-600 font-medium">아침결식 해결 & 수면 케어</p>
+                </div>
+            </div>
+            <div class="bg-emerald-50 text-emerald-700 text-xs px-3 py-1 rounded-full font-bold flex items-center gap-1.5 border border-emerald-200">
+                <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> 건강 가이드
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="max-w-md mx-auto px-4 pt-6">
+
+        <!-- Form Screen (Step 1) -->
+        <section id="form-screen" class="bg-white rounded-3xl p-6 border border-emerald-100 shadow-xl shadow-emerald-900/5 relative overflow-hidden transition-all duration-300">
+            <div class="text-center mb-6">
+                <span class="inline-block bg-emerald-100 text-emerald-800 text-xs font-bold px-3 py-1 rounded-full mb-2">
+                    맞춤 루틴 진단
+                </span>
+                <h2 class="text-2xl font-bold text-gray-900">당신의 건강한 아침을 원해요 ✨</h2>
+                <p class="text-xs text-gray-500 mt-1">평소 수면 및 식습관 정보를 입력하고 맞춤 가이드를 받아보세요.</p>
+            </div>
+
+            <form id="routine-form" class="space-y-4" onsubmit="handleFormSubmit(event)">
+                <!-- 1. Wake-up Time -->
+                <div class="bg-emerald-50/50 p-4 rounded-2xl border border-emerald-100 hover:border-emerald-300 transition-all">
+                    <label class="block font-bold text-gray-800 text-xs mb-1.5 flex items-center gap-2">
+                        <span class="text-base">⏰</span> 평소 일어나는 시간
+                    </label>
+                    <input type="time" id="wakeup-time" value="07:00" required 
+                           class="w-full bg-white border border-emerald-200 rounded-xl px-3.5 py-2 text-sm text-gray-800 font-bold focus:outline-none focus:ring-2 focus:ring-emerald-400">
+                </div>
+
+                <!-- 2. Bedtime -->
+                <div class="bg-amber-50/50 p-4 rounded-2xl border border-amber-100 hover:border-amber-300 transition-all">
+                    <label class="block font-bold text-gray-800 text-xs mb-1.5 flex items-center gap-2">
+                        <span class="text-base">🌙</span> 평소 자는 시간
+                    </label>
+                    <input type="time" id="bed-time" value="01:30" required 
+                           class="w-full bg-white border border-amber-200 rounded-xl px-3.5 py-2 text-sm text-gray-800 font-bold focus:outline-none focus:ring-2 focus:ring-amber-400">
+                </div>
+
+                <!-- 3. Breakfast Frequency -->
+                <div class="bg-emerald-50/50 p-4 rounded-2xl border border-emerald-100 hover:border-emerald-300 transition-all">
+                    <label class="block font-bold text-gray-800 text-xs mb-2 flex items-center justify-between">
+                        <span class="flex items-center gap-2"><span class="text-base">🥗</span> 평소 아침 먹는 횟수 (일주일 기준)</span>
+                        <span id="freq-val" class="bg-emerald-600 text-white text-[11px] px-2.5 py-0.5 rounded-full font-bold">주 1 회</span>
+                    </label>
+                    <input type="range" id="breakfast-freq" min="0" max="7" value="1" step="1" 
+                           oninput="updateFreqLabel(this.value)"
+                           class="w-full accent-emerald-500 h-2 bg-emerald-200 rounded-lg appearance-none cursor-pointer">
+                    <div class="flex justify-between text-[10px] text-gray-400 font-bold mt-1.5 px-0.5">
+                        <span>거의 안 먹음 (0일)</span>
+                        <span>매일 먹음 (7일)</span>
+                    </div>
+                </div>
+
+                <!-- 4. Morning Prep Time -->
+                <div class="bg-gray-50/80 p-4 rounded-2xl border border-gray-200/60">
+                    <label class="block font-bold text-gray-800 text-xs mb-2 flex items-center gap-2">
+                        <span class="text-base">⏱️</span> 아침 식사 준비 가능 시간
+                    </label>
+                    <div class="grid grid-cols-3 gap-2">
+                        <label class="cursor-pointer">
+                            <input type="radio" name="prep-time" value="3" class="peer hidden" checked>
+                            <div class="peer-checked:bg-emerald-500 peer-checked:text-white peer-checked:border-emerald-600 bg-white border border-gray-200 text-gray-700 font-bold text-center py-2.5 rounded-xl text-xs transition-all shadow-sm">
+                                초간단<br>(3분 이내)
+                            </div>
+                        </label>
+                        <label class="cursor-pointer">
+                            <input type="radio" name="prep-time" value="10" class="peer hidden">
+                            <div class="peer-checked:bg-emerald-500 peer-checked:text-white peer-checked:border-emerald-600 bg-white border border-gray-200 text-gray-700 font-bold text-center py-2.5 rounded-xl text-xs transition-all shadow-sm">
+                                적당히<br>(5~10분)
+                            </div>
+                        </label>
+                        <label class="cursor-pointer">
+                            <input type="radio" name="prep-time" value="15" class="peer hidden">
+                            <div class="peer-checked:bg-emerald-500 peer-checked:text-white peer-checked:border-emerald-600 bg-white border border-gray-200 text-gray-700 font-bold text-center py-2.5 rounded-xl text-xs transition-all shadow-sm">
+                                든든하게<br>(15분 이상)
+                            </div>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Submit Button -->
+                <button type="submit" 
+                        class="w-full bg-emerald-500 hover:bg-emerald-600 active:scale-98 text-white font-bold text-base py-3.5 rounded-2xl shadow-lg shadow-emerald-500/20 transition-all flex items-center justify-center gap-2 mt-2">
+                    <span>맞춤 플랜 진단하기</span>
+                    <i class="fa-solid fa-arrow-right text-sm"></i>
+                </button>
+            </form>
+        </section>
+
+        <!-- Result Screen (Step 2 - Hidden by default) -->
+        <section id="result-screen" class="hidden space-y-4">
+
+            <!-- Submission Complete Header -->
+            <div class="bg-gradient-to-r from-emerald-500 to-teal-500 text-white p-5 rounded-3xl shadow-lg shadow-emerald-500/15 text-center relative overflow-hidden">
+                <div class="inline-block bg-white/20 backdrop-blur-md px-3 py-1 rounded-full text-xs font-bold mb-1.5">
+                    제출 완료! 🎉
+                </div>
+                <h2 class="text-xl font-extrabold">아침 식단 & 수면 케어 리포트</h2>
+                <p class="text-xs text-emerald-50 font-medium mt-1">입력하신 습관을 계산하여 맞춤 가이드를 구성했습니다.</p>
+            </div>
+
+            <!-- Health Status Diagnostic Cards (수면 & 아침 식습관 계산 결과) -->
+            <div class="grid grid-cols-2 gap-3">
+                <div class="bg-white p-4 rounded-2xl border border-gray-100 shadow-sm text-center">
+                    <span class="text-xs font-bold text-gray-400 block mb-1">수면 시간 분석</span>
+                    <div id="status-sleep-val" class="text-lg font-bold text-gray-800">5.5시간</div>
+                    <span id="status-sleep-badge" class="inline-block text-[10px] px-2 py-0.5 rounded-full font-bold mt-1 bg-amber-100 text-amber-800">
+                        수면 부족 ⚠️
+                    </span>
+                </div>
+
+                <div class="bg-white p-4 rounded-2xl border border-gray-100 shadow-sm text-center">
+                    <span class="text-xs font-bold text-gray-400 block mb-1">아침 식사 달성도</span>
+                    <div id="status-meal-val" class="text-lg font-bold text-gray-800">주 1회</div>
+                    <span id="status-meal-badge" class="inline-block text-[10px] px-2 py-0.5 rounded-full font-bold mt-1 bg-rose-100 text-rose-800">
+                        아침 결식 위험 🚨
+                    </span>
+                </div>
+            </div>
+
+            <!-- Crucial Conditional Alert Banner -->
+            <div id="conditional-alert" class="hidden rounded-2xl p-4 border shadow-sm transition-all">
+                <div class="flex items-start gap-3">
+                    <div id="alert-icon" class="text-2xl mt-0.5">⚠️</div>
+                    <div class="flex-1">
+                        <h4 id="alert-title" class="font-bold text-sm">건강 습관 주의</h4>
+                        <p id="alert-desc" class="text-xs font-semibold mt-1 leading-relaxed"></p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB Navigation -->
+            <div class="flex bg-white p-1 rounded-2xl border border-gray-200/80 gap-1 text-xs font-bold shadow-sm">
+                <button id="tab-meal-btn" onclick="switchTab('meal')" class="flex-1 py-2.5 rounded-xl transition-all bg-emerald-500 text-white shadow-sm">
+                    🥗 맞춤 아침 식단
+                </button>
+                <button id="tab-sleep-btn" onclick="switchTab('sleep')" class="flex-1 py-2.5 rounded-xl transition-all text-gray-500 hover:text-gray-800">
+                    ⏰ 수면 알람 가이드
+                </button>
+            </div>
+
+            <!-- TAB 1: Meal Recommendation -->
+            <div id="tab-meal" class="space-y-3">
+                <div class="bg-white p-5 rounded-3xl border border-gray-100 shadow-md">
+                    <div class="flex items-center justify-between mb-3 border-b border-gray-100 pb-2.5">
+                        <span id="user-level-badge" class="bg-emerald-100 text-emerald-800 text-xs font-bold px-2.5 py-1 rounded-full">
+                            입문자 코스
+                        </span>
+                        <span id="prep-time-tag" class="text-xs text-gray-400 font-bold">
+                            ⏱ 소요시간: 3분 이내
+                        </span>
+                    </div>
+
+                    <h3 id="recommend-title" class="text-base font-bold text-gray-900 mb-1">
+                        부담 없이 빠르게 챙기는 모닝 워밍업 메뉴
+                    </h3>
+                    <p id="recommend-desc" class="text-xs text-gray-500 mb-4 leading-relaxed">
+                        아침 식사에 익숙하지 않은 분들을 위한 목넘김이 좋고 소화가 편한 메뉴입니다.
+                    </p>
+
+                    <!-- Recipes Grid -->
+                    <div class="space-y-2.5" id="recipe-list">
+                        <!-- Dynamic recipe items -->
+                    </div>
+
+                    <div class="mt-4 bg-emerald-50/70 p-3 rounded-xl border border-emerald-100 text-xs text-emerald-900 flex items-start gap-2.5">
+                        <span class="text-base mt-0.5">💡</span>
+                        <span id="diet-tip" class="leading-relaxed">아침을 안 먹던 습관을 깰 때는, 씹는 부담이 없는 액상 음료나 가벼운 요거트로 위장을 깨워주는 것이 핵심입니다.</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 2: Sleep & Alarm -->
+            <div id="tab-sleep" class="hidden space-y-3">
+                <div class="bg-white p-5 rounded-3xl border border-gray-100 shadow-md">
+                    <div class="text-center mb-3">
+                        <span class="bg-amber-100 text-amber-800 text-xs font-bold px-3 py-1 rounded-full">
+                            목표 수면 라이프
+                        </span>
+                        <h3 class="text-base font-bold text-gray-800 mt-2">오늘 밤 추천 취침 시간</h3>
+                        <p class="text-xs text-gray-400 mt-0.5">기상 시간 기준 7.5시간(권장 수면 주기) 확보</p>
+                    </div>
+
+                    <!-- Recommended Bedtime Display -->
+                    <div class="bg-amber-50/80 p-4 rounded-2xl border border-amber-200/80 text-center my-3">
+                        <div class="text-xs text-amber-800 font-bold mb-1">이 시간에 자야 아침에 눈이 번쩍! 👁️✨</div>
+                        <div id="target-bedtime-display" class="text-3xl font-extrabold text-amber-950 tracking-tight">
+                            오후 11:30
+                        </div>
+                        <p id="sleep-duration-info" class="text-[11px] font-semibold mt-1">
+                            현재 입력 수면 패턴 분석 중...
+                        </p>
+                    </div>
+
+                    <!-- Bedtime Alarm Toggle Switch Card -->
+                    <div class="border border-gray-200 rounded-2xl p-4 bg-gray-50/50 mt-4">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 bg-amber-100 rounded-xl flex items-center justify-center text-amber-700 text-lg">
+                                    <i class="fa-solid fa-bell"></i>
+                                </div>
+                                <div>
+                                    <h4 class="font-bold text-xs text-gray-800">취침 준비 알람 설정</h4>
+                                    <p class="text-[11px] text-gray-400">목표 취침 30분 전 알림을 보내드려요</p>
+                                </div>
+                            </div>
+                            <!-- Switch Button -->
+                            <button id="alarm-toggle-btn" onclick="toggleAlarm()" 
+                                    class="w-12 h-6 bg-gray-300 rounded-full p-1 transition-colors duration-200 ease-in-out relative">
+                                <div id="alarm-toggle-circle" class="w-4 h-4 bg-white rounded-full shadow-md transform transition-transform duration-200 ease-in-out"></div>
+                            </button>
+                        </div>
+                        <p id="alarm-status-text" class="text-[10px] text-gray-400 mt-2 text-right">알람 꺼짐</p>
+                    </div>
+
+                    <!-- Sleep Tips -->
+                    <div class="mt-4 space-y-2 border-t border-gray-100 pt-3">
+                        <div class="flex items-start gap-2 text-xs text-gray-600">
+                            <span class="text-amber-500 font-bold">•</span>
+                            <span>잠들기 1시간 전 스마트폰 조명 밝기를 줄이고 사용을 자제해보세요.</span>
+                        </div>
+                        <div class="flex items-start gap-2 text-xs text-gray-600">
+                            <span class="text-amber-500 font-bold">•</span>
+                            <span>자기 전 미지근한 물 한 잔으로 수분을 보충하면 수면 질 향상에 도움 됩니다.</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Re-calculate / Edit Button -->
+            <button onclick="resetForm()" class="w-full bg-white hover:bg-gray-50 border border-gray-200 text-gray-600 font-bold py-3 rounded-2xl text-xs transition-all text-center shadow-sm">
+                🔄 입력 정보 수정하기
+            </button>
+        </section>
+
+    </main>
+
+    <!-- Custom Modal Notification (Replaces native browser alert) -->
+    <div id="toast-modal" class="fixed inset-0 bg-black/30 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl p-6 max-w-xs w-full text-center border border-gray-100 shadow-2xl transform scale-95 transition-all">
+            <div id="toast-icon" class="text-4xl mb-2">🔔</div>
+            <h3 id="toast-title" class="font-bold text-gray-800 text-sm mb-1">알림</h3>
+            <p id="toast-msg" class="text-xs text-gray-600 mb-5 leading-relaxed"></p>
+            <button onclick="closeToast()" class="w-full bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-2.5 rounded-xl text-xs shadow-md">
+                확인
+            </button>
+        </div>
+    </div>
+
+    <!-- JavaScript Logic -->
+    <script>
+        // Global State
+        let isAlarmActive = false;
+
+        // Meal Database based on prep time and frequency level
+        const mealDatabase = {
+            easy: [
+                {
+                    title: "바나나 오트밀크 스무디 🍌",
+                    time: "3분 소요",
+                    desc: "바나나 1개 + 오트밀크 200ml를 갈아 빠르게 마시는 속 편한 스무디",
+                    tags: ["속편함", "초스피드", "소화원활"],
+                    icon: "🥤"
+                },
+                {
+                    title: "그릭 요거트 & 견과류 🥣",
+                    time: "2분 소요",
+                    desc: "플레인 요거트에 그래놀라와 아몬드를 얹어 즉시 섭취",
+                    tags: ["고단백", "간편함"],
+                    icon: "🍧"
+                },
+                {
+                    title: "구운 계란 & 두유 라이트 🥚",
+                    time: "1분 소요",
+                    desc: "편의점 구운 계란 2개와 고소한 두유 한 팩으로 든든하게",
+                    tags: ["조리없음", "단백질"],
+                    icon: "🥛"
+                }
+            ],
+            medium: [
+                {
+                    title: "통밀 토스트 & 계란 후라이 🍞",
+                    time: "7분 소요",
+                    desc: "노릇하게 구운 통밀빵 위에 반숙 계란 후라이와 치즈 한 장",
+                    tags: ["에너지충전", "식이섬유"],
+                    icon: "🥪"
+                },
+                {
+                    title: "사과 슬라이스 & 닭가슴살 소시지 🍎",
+                    time: "5분 소요",
+                    desc: "상큼한 사과와 전자레인지에 1분 데운 닭가슴살 소시지",
+                    tags: ["비타민", "포만감"],
+                    icon: "🥗"
+                }
+            ],
+            advanced: [
+                {
+                    title: "따뜻한 계란 야채죽 🍲",
+                    time: "12분 소요",
+                    desc: "부드럽게 속을 데워주는 계란죽에 참기름 한 방울 떨어뜨린 건강 한 끼",
+                    tags: ["따뜻함", "영양균형"],
+                    icon: "🥣"
+                },
+                {
+                    title: "아보카도 에그 머핀 🍳",
+                    time: "15분 소요",
+                    desc: "고소한 아보카도와 계란 후라이를 올린 프리미엄 모닝 머핀",
+                    tags: ["파워브런치", "건강지방"],
+                    icon: "🍔"
+                }
+            ]
+        };
+
+        // Helper: Update Range Label
+        function updateFreqLabel(val) {
+            document.getElementById('freq-val').innerText = `주 ${val} 회`;
+        }
+
+        // Form Submit Handler
+        function handleFormSubmit(e) {
+            e.preventDefault();
+
+            const wakeTime = document.getElementById('wakeup-time').value;
+            const bedTime = document.getElementById('bed-time').value;
+            const freq = parseInt(document.getElementById('breakfast-freq').value);
+            const prepTime = parseInt(document.querySelector('input[name="prep-time"]:checked').value);
+
+            // Calculations
+            const sleepHours = calculateSleepDuration(bedTime, wakeTime);
+            const isLateSleep = isSleepingLate(bedTime, sleepHours);
+            const recommendedBedtime = calculateRecommendedBedtime(wakeTime);
+
+            // Render Status Badges
+            renderStatusBadges(freq, sleepHours);
+
+            // Render Meal & Sleep Content
+            renderMealRecommendations(freq, prepTime);
+            renderSleepGuide(recommendedBedtime, sleepHours);
+
+            // Check Crucial Conditional Logic Statement
+            checkConditionalAlerts(freq, isLateSleep, sleepHours);
+
+            // Switch Screen
+            document.getElementById('form-screen').classList.add('hidden');
+            document.getElementById('result-screen').classList.remove('hidden');
+
+            // Scroll to top
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // Sleep Duration Calculator (returns hours)
+        function calculateSleepDuration(bed, wake) {
+            const [bH, bM] = bed.split(':').map(Number);
+            const [wH, wM] = wake.split(':').map(Number);
+
+            let bedMin = bH * 60 + bM;
+            let wakeMin = wH * 60 + wM;
+
+            if (wakeMin <= bedMin) {
+                wakeMin += 24 * 60; // Slept overnight
+            }
+
+            return parseFloat(((wakeMin - bedMin) / 60).toFixed(1));
+        }
+
+        // Check if user is sleeping late (After 00:00 or sleep duration < 6 hours)
+        function isSleepingLate(bedTime, sleepHours) {
+            const [bH, bM] = bedTime.split(':').map(Number);
+            // Sleeping after midnight (00:00 ~ 05:00) or sleep duration less than 6 hours
+            const sleptPastMidnight = bH >= 0 && bH < 5;
+            return sleptPastMidnight || sleepHours < 6;
+        }
+
+        // Calculate Ideal Bedtime (7.5 hours prior to wake time)
+        function calculateRecommendedBedtime(wake) {
+            const [wH, wM] = wake.split(':').map(Number);
+            let totalWakeMin = wH * 60 + wM;
+            
+            let idealBedMin = totalWakeMin - 450; // 7.5 hours
+            if (idealBedMin < 0) {
+                idealBedMin += 24 * 60;
+            }
+
+            const h = Math.floor(idealBedMin / 60);
+            const m = idealBedMin % 60;
+            const period = h >= 12 ? '오후' : '오전';
+            const displayH = h % 12 === 0 ? 12 : h % 12;
+            const displayM = m < 10 ? `0${m}` : m;
+
+            return `${period} ${displayH}:${displayM}`;
+        }
+
+        // Diagnostic Badges Render
+        function renderStatusBadges(freq, sleepHours) {
+            const sleepVal = document.getElementById('status-sleep-val');
+            const sleepBadge = document.getElementById('status-sleep-badge');
+            const mealVal = document.getElementById('status-meal-val');
+            const mealBadge = document.getElementById('status-meal-badge');
+
+            sleepVal.innerText = `${sleepHours}시간`;
+            if (sleepHours < 6) {
+                sleepBadge.innerText = "수면 부족 ⚠️";
+                sleepBadge.className = "inline-block text-[10px] px-2 py-0.5 rounded-full font-bold mt-1 bg-amber-100 text-amber-800";
+            } else {
+                sleepBadge.innerText = "적정 수면 👍";
+                sleepBadge.className = "inline-block text-[10px] px-2 py-0.5 rounded-full font-bold mt-1 bg-emerald-100 text-emerald-800";
+            }
+
+            mealVal.innerText = `주 ${freq}회`;
+            if (freq <= 2) {
+                mealBadge.innerText = "아침 결식 🚨";
+                mealBadge.className = "inline-block text-[10px] px-2 py-0.5 rounded-full font-bold mt-1 bg-rose-100 text-rose-800";
+            } else if (freq <= 5) {
+                mealBadge.innerText = "개선 가능 🌿";
+                mealBadge.className = "inline-block text-[10px] px-2 py-0.5 rounded-full font-bold mt-1 bg-amber-100 text-amber-800";
+            } else {
+                mealBadge.innerText = "참 잘해요 👏";
+                mealBadge.className = "inline-block text-[10px] px-2 py-0.5 rounded-full font-bold mt-1 bg-emerald-100 text-emerald-800";
+            }
+        }
+
+        // MANDATORY SPEC REQUIREMENT: Check conditional alert statement
+        function checkConditionalAlerts(freq, isLateSleep, sleepHours) {
+            const alertBox = document.getElementById('conditional-alert');
+            const alertIcon = document.getElementById('alert-icon');
+            const alertTitle = document.getElementById('alert-title');
+            const alertDesc = document.getElementById('alert-desc');
+
+            const isLowBreakfast = freq <= 2;
+
+            // Conditional statement check
+            if (isLowBreakfast && isLateSleep) {
+                alertBox.classList.remove('hidden');
+                alertBox.className = "rounded-2xl p-4 border border-rose-200 bg-rose-50/90 shadow-sm transition-all";
+                alertIcon.innerText = "🚨";
+                alertTitle.innerText = "맞춤 시급 안내";
+                alertTitle.className = "font-extrabold text-sm text-rose-900";
+                
+                // EXACT USER SPECIFIED TEXT INSTRUCTION
+                alertDesc.innerText = "잠을 일찍 자고 아침을 드세요!";
+                alertDesc.className = "text-xs font-bold mt-1 text-rose-700 leading-relaxed text-sm";
+            } else if (isLowBreakfast) {
+                alertBox.classList.remove('hidden');
+                alertBox.className = "rounded-2xl p-4 border border-amber-200 bg-amber-50/90 shadow-sm transition-all";
+                alertIcon.innerText = "🥗";
+                alertTitle.innerText = "아침 식습관 추천";
+                alertTitle.className = "font-bold text-sm text-amber-900";
+                alertDesc.innerText = "아침 식사를 자꾸 거르시네요! 부담스럽지 않게 간단한 두유나 스무디부터 시작해보세요.";
+                alertDesc.className = "text-xs font-medium mt-1 text-amber-800 leading-relaxed";
+            } else if (isLateSleep) {
+                alertBox.classList.remove('hidden');
+                alertBox.className = "rounded-2xl p-4 border border-indigo-200 bg-indigo-50/90 shadow-sm transition-all";
+                alertIcon.innerText = "🌙";
+                alertTitle.innerText = "수면 시간 개선 안내";
+                alertTitle.className = "font-bold text-sm text-indigo-900";
+                alertDesc.innerText = "취침 시간이 다소 늦거나 수면 시간이 부족합니다. 오늘 밤은 30분 일찍 누워보세요!";
+                alertDesc.className = "text-xs font-medium mt-1 text-indigo-800 leading-relaxed";
+            } else {
+                alertBox.classList.add('hidden');
+            }
+        }
+
+        // Meal Recommendation Logic
+        function renderMealRecommendations(freq, prepTime) {
+            const badge = document.getElementById('user-level-badge');
+            const timeTag = document.getElementById('prep-time-tag');
+            const title = document.getElementById('recommend-title');
+            const desc = document.getElementById('recommend-desc');
+            const tip = document.getElementById('diet-tip');
+            const list = document.getElementById('recipe-list');
+
+            let selectedCategory = 'easy';
+            
+            if (freq <= 2 || prepTime <= 3) {
+                selectedCategory = 'easy';
+                badge.innerText = "🌱 입문자 추천 (초간단 습관 형성)";
+                badge.className = "bg-emerald-100 text-emerald-800 text-xs font-bold px-2.5 py-1 rounded-full";
+                timeTag.innerText = "⏱ 준비시간: 3분 이내";
+                title.innerText = "속 부담 없이 가볍게 시작하는 아침 식단";
+                desc.innerText = "아침을 잘 안 드시던 분들을 위해 소화가 잘 되고 즉시 마실 수 있는 가벼운 메뉴로 구성했어요.";
+                tip.innerText = "아침을 안 먹던 습관을 깰 때는 음료 형태나 가벼운 요거트로 위장을 부담없이 자극하는 것이 좋습니다.";
+            } else if (prepTime <= 10) {
+                selectedCategory = 'medium';
+                badge.innerText = "🌿 중급자 추천 (스마트 밸런스)";
+                badge.className = "bg-amber-100 text-amber-800 text-xs font-bold px-2.5 py-1 rounded-full";
+                timeTag.innerText = "⏱ 준비시간: 5~10분";
+                title.innerText = "활력과 집중력을 높이는 스피드 식단";
+                desc.innerText = "탄수화물과 단백질이 적절히 어우러져 오전 포만감을 지속시켜 주는 구성입니다.";
+                tip.innerText = "통밀빵이나 단백질 소시지를 미리 준비해두면 바쁜 아침에도 5분 만에 완성할 수 있어요.";
+            } else {
+                selectedCategory = 'advanced';
+                badge.innerText = "⭐ 숙련자 추천 (파워 풀코스)";
+                badge.className = "bg-teal-100 text-teal-800 text-xs font-bold px-2.5 py-1 rounded-full";
+                timeTag.innerText = "⏱ 준비시간: 15분 이상";
+                title.innerText = "에너지 충전 든든한 파워 모닝";
+                desc.innerText = "충분한 영양을 제공하여 하루를 힘차게 시작할 수 있도록 돕는 든든한 한 끼 식단입니다.";
+                tip.innerText = "따뜻한 성질의 음식은 아침 체온을 높여 신진대사 촉진 및 소화 효소 활성화에 큰 도움을 줍니다.";
+            }
+
+            const recipes = mealDatabase[selectedCategory];
+            list.innerHTML = recipes.map(r => `
+                <div class="bg-gray-50 border border-gray-100 p-3 rounded-2xl flex items-center gap-3 hover:border-emerald-200 transition-all">
+                    <div class="text-2xl bg-white p-2 rounded-xl shadow-sm border border-gray-100">${r.icon}</div>
+                    <div class="flex-1">
+                        <div class="flex items-center justify-between">
+                            <h4 class="font-bold text-xs text-gray-800">${r.title}</h4>
+                            <span class="text-[10px] bg-white text-emerald-800 font-bold px-1.5 py-0.5 rounded border border-emerald-100">${r.time}</span>
+                        </div>
+                        <p class="text-[11px] text-gray-500 mt-0.5 leading-tight">${r.desc}</p>
+                        <div class="flex gap-1 mt-1.5">
+                            ${r.tags.map(t => `<span class="text-[9px] bg-emerald-50 text-emerald-700 px-1.5 py-0.2 rounded font-medium">#${t}</span>`).join('')}
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Sleep Guide Logic
+        function renderSleepGuide(recBed, actualHours) {
+            document.getElementById('target-bedtime-display').innerText = recBed;
+            const durationInfo = document.getElementById('sleep-duration-info');
+
+            if (actualHours < 6) {
+                durationInfo.innerText = `현재 수면시간(${actualHours}시간)이 부족해요! 최소 7시간 수면 권장.`;
+                durationInfo.className = "text-[11px] text-amber-700 font-semibold mt-1";
+            } else if (actualHours >= 7 && actualHours <= 8.5) {
+                durationInfo.innerText = `현재 수면시간 약 ${actualHours}시간으로 매우 이상적인 수면 패턴입니다! 👏`;
+                durationInfo.className = "text-[11px] text-emerald-700 font-semibold mt-1";
+            } else {
+                durationInfo.innerText = `현재 수면시간 약 ${actualHours}시간. 권장 수면시간(7.5시간)을 유지해 보세요.`;
+                durationInfo.className = "text-[11px] text-gray-600 font-semibold mt-1";
+            }
+        }
+
+        // TAB Switcher
+        function switchTab(tab) {
+            const mealBtn = document.getElementById('tab-meal-btn');
+            const sleepBtn = document.getElementById('tab-sleep-btn');
+            const mealTab = document.getElementById('tab-meal');
+            const sleepTab = document.getElementById('tab-sleep');
+
+            if (tab === 'meal') {
+                mealBtn.className = "flex-1 py-2.5 rounded-xl transition-all bg-emerald-500 text-white shadow-sm";
+                sleepBtn.className = "flex-1 py-2.5 rounded-xl transition-all text-gray-500 hover:text-gray-800";
+                mealTab.classList.remove('hidden');
+                sleepTab.classList.add('hidden');
+            } else {
+                sleepBtn.className = "flex-1 py-2.5 rounded-xl transition-all bg-amber-500 text-white shadow-sm";
+                mealBtn.className = "flex-1 py-2.5 rounded-xl transition-all text-gray-500 hover:text-gray-800";
+                sleepTab.classList.remove('hidden');
+                mealTab.classList.add('hidden');
+            }
+        }
+
+        // Toggle Bedtime Alarm Reminder
+        function toggleAlarm() {
+            const btn = document.getElementById('alarm-toggle-btn');
+            const circle = document.getElementById('alarm-toggle-circle');
+            const status = document.getElementById('alarm-status-text');
+
+            isAlarmActive = !isAlarmActive;
+
+            if (isAlarmActive) {
+                btn.className = "w-12 h-6 bg-amber-500 rounded-full p-1 transition-colors duration-200 ease-in-out relative";
+                circle.className = "w-4 h-4 bg-white rounded-full shadow-md transform translate-x-6 transition-transform duration-200 ease-in-out";
+                status.innerText = "알람 켜짐 (취침 30분 전 알림 예정)";
+                status.className = "text-[10px] text-amber-700 font-bold mt-2 text-right";
+
+                showToast("🔔 취침 알람 활성화", "설정된 목표 취침 시간 30분 전에 취침 준비 알림이 작동합니다!");
+            } else {
+                btn.className = "w-12 h-6 bg-gray-300 rounded-full p-1 transition-colors duration-200 ease-in-out relative";
+                circle.className = "w-4 h-4 bg-white rounded-full shadow-md transform transition-transform duration-200 ease-in-out";
+                status.innerText = "알람 꺼짐";
+                status.className = "text-[10px] text-gray-400 mt-2 text-right";
+
+                showToast("🔕 알람 해제", "취침 알림이 해제되었습니다.");
+            }
+        }
+
+        // Custom Toast Modal Handler
+        function showToast(title, message, icon = "🛎️") {
+            document.getElementById('toast-icon').innerText = icon;
+            document.getElementById('toast-title').innerText = title;
+            document.getElementById('toast-msg').innerText = message;
+            document.getElementById('toast-modal').classList.remove('hidden');
+        }
+
+        function closeToast() {
+            document.getElementById('toast-modal').classList.add('hidden');
+        }
+
+        // Reset and Edit Form
+        function resetForm() {
+            document.getElementById('result-screen').classList.add('hidden');
+            document.getElementById('form-screen').classList.remove('hidden');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+    </script>
+</body>
+</html>
