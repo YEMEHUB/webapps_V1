@@ -1,1 +1,526 @@
 
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SmartHealth - 맞춤형 식단 및 건강 관리 플래너</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Google Fonts (Noto Sans KR) -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+            background-color: #f8fafc;
+            color: #1e293b;
+        }
+        /* Simple Animation */
+        .fade-in {
+            animation: fadeIn 0.4s ease-in-out forwards;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between antialiased">
+
+    <!-- Header -->
+    <header class="bg-white border-b border-slate-200 sticky top-0 z-50">
+        <div class="max-w-5xl mx-auto px-4 py-4 flex justify-between items-center">
+            <div class="flex items-center space-x-2">
+                <div class="bg-teal-500 text-white p-2 rounded-xl shadow-sm">
+                    <i data-lucide="heart-pulse" class="w-6 h-6"></i>
+                </div>
+                <div>
+                    <h1 class="text-xl font-bold text-slate-800 tracking-tight">SmartHealth</h1>
+                    <p class="text-xs text-slate-500">쉬운 식단 설계 & 맞춤 건강 플래너</p>
+                </div>
+            </div>
+            <button onclick="resetApp()" class="text-xs text-slate-500 hover:text-teal-600 transition flex items-center gap-1">
+                <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i> 초기화
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="max-w-5xl mx-auto w-full px-4 py-8 flex-grow">
+        
+        <!-- App Description / Banner -->
+        <div class="mb-8 text-center max-w-2xl mx-auto">
+            <h2 class="text-2xl font-bold text-slate-800 mb-2">어려운 건강 관리, 한 번에 정리해 드려요</h2>
+            <p class="text-sm text-slate-600">
+                복잡한 영양 계산부터 현재 문제 분석, 해결 피드백, 미래 관리 계획까지!<br>
+                자신의 목표 칼로리와 탄/단/지 비율을 입력하면 쉽게 이해할 수 있는 건강 가이드를 제공합니다.
+            </p>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+            
+            <!-- Left Panel: Input Form -->
+            <section class="lg:col-span-5 bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+                <h3 class="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2 border-b border-slate-100 pb-3">
+                    <i data-lucide="sliders" class="w-5 h-5 text-teal-600"></i>
+                    내 건강 & 목표 정보 입력
+                </h3>
+
+                <form id="healthForm" onsubmit="calculateAndAnalyze(event)" class="space-y-4">
+                    
+                    <!-- Basic Body Info -->
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 mb-1">성별</label>
+                            <select id="gender" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500">
+                                <option value="male">남성</option>
+                                <option value="female">여성</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 mb-1">나이 (세)</label>
+                            <input type="number" id="age" value="30" min="10" max="100" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500" required>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 mb-1">키 (cm)</label>
+                            <input type="number" id="height" value="170" min="100" max="230" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500" required>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 mb-1">체중 (kg)</label>
+                            <input type="number" id="weight" value="68" min="30" max="200" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500" required>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">활동량</label>
+                        <select id="activity" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500">
+                            <option value="1.2">주로 앉아서 생활함 (활동량 매우 적음)</option>
+                            <option value="1.375" selected>가벼운 활동/주 1~3회 운동</option>
+                            <option value="1.55">보통 활동/주 3~5회 운동</option>
+                            <option value="1.725">보통 이상 활동/주 6~7회 운동</option>
+                        </select>
+                    </div>
+
+                    <hr class="border-slate-100 my-2">
+
+                    <!-- Target Intake Info -->
+                    <div>
+                        <div class="flex justify-between items-center mb-1">
+                            <label class="block text-xs font-semibold text-slate-700">목표 총 칼로리 (kcal)</label>
+                            <span class="text-[11px] text-teal-600 cursor-pointer font-medium" onclick="autoSetCalorie()">권장값 자동 설정</span>
+                        </div>
+                        <input type="number" id="targetCalories" value="2000" step="10" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500" required>
+                    </div>
+
+                    <!-- Macro Nutrients Input (Grams) -->
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 mb-1">목표 탄수화물 (g)</label>
+                        <input type="number" id="targetCarbs" value="250" step="5" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500" required>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 mb-1">목표 단백질 (g)</label>
+                            <input type="number" id="targetProtein" value="100" step="5" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500" required>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 mb-1">목표 지방 (g)</label>
+                            <input type="number" id="targetFat" value="60" step="5" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500" required>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="w-full bg-teal-600 hover:bg-teal-700 text-white font-medium py-3 rounded-xl shadow-sm transition duration-150 ease-in-out flex items-center justify-center gap-2 mt-4">
+                        <i data-lucide="sparkles" class="w-4 h-4"></i>
+                        내 건강 분석 및 계획 받기
+                    </button>
+                </form>
+            </section>
+
+            <!-- Right Panel: Results & Feedback -->
+            <section class="lg:col-span-7 space-y-6">
+                
+                <!-- Initial Empty State -->
+                <div id="emptyState" class="bg-white p-12 rounded-2xl border border-slate-200 text-center text-slate-400">
+                    <i data-lucide="file-search" class="w-16 h-16 mx-auto mb-3 text-slate-300"></i>
+                    <p class="text-base font-medium text-slate-600">왼쪽 폼에 당신의 정보와 목표를 입력해보세요.</p>
+                    <p class="text-xs text-slate-400 mt-1">분석 결과, 해결 피드백, 미래 관리 계획이 생성됩니다.</p>
+                </div>
+
+                <!-- Analysis Results (Hidden by default) -->
+                <div id="resultContent" class="hidden space-y-6 fade-in">
+                    
+                    <!-- 0. Summary Box (합쳐서 요약) -->
+                    <div class="bg-gradient-to-br from-teal-500 to-emerald-600 text-white p-6 rounded-2xl shadow-md">
+                        <div class="flex items-center gap-2 mb-2 opacity-90 text-xs font-semibold tracking-wider uppercase">
+                            <i data-lucide="layout-dashboard" class="w-4 h-4"></i>
+                            통합 요약 리포트 (Understanding at a Glance)
+                        </div>
+                        <h3 id="summaryTitle" class="text-xl font-bold mb-2">나의 건강 플랜 요약</h3>
+                        <p id="summaryText" class="text-sm leading-relaxed text-teal-50">
+                            <!-- JS Inject -->
+                        </p>
+                        <div class="mt-4 pt-4 border-t border-white/20 grid grid-cols-3 gap-2 text-center text-xs">
+                            <div class="bg-white/10 rounded-lg p-2">
+                                <span class="block text-teal-100 text-[10px]">체질량지수 (BMI)</span>
+                                <span id="bmiVal" class="font-bold text-sm">22.4</span>
+                            </div>
+                            <div class="bg-white/10 rounded-lg p-2">
+                                <span class="block text-teal-100 text-[10px]">권장 칼로리</span>
+                                <span id="recCalVal" class="font-bold text-sm">2,100 kcal</span>
+                            </div>
+                            <div class="bg-white/10 rounded-lg p-2">
+                                <span class="block text-teal-100 text-[10px]">영양 상태</span>
+                                <span id="statusVal" class="font-bold text-sm">적정</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Macro Chart & Nutrient Status -->
+                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+                        <h4 class="text-sm font-bold text-slate-700 mb-4 flex items-center gap-2">
+                            <i data-lucide="pie-chart" class="w-4 h-4 text-teal-600"></i>
+                            목표 영양소 구성 (탄/단/지)
+                        </h4>
+                        <div class="flex flex-col sm:flex-row items-center gap-6">
+                            <div class="w-40 h-40 relative">
+                                <canvas id="macroChart"></canvas>
+                            </div>
+                            <div class="flex-1 w-full space-y-3">
+                                <div>
+                                    <div class="flex justify-between text-xs mb-1">
+                                        <span class="text-slate-600 font-medium">탄수화물 (<span id="carbGrams">250</span>g)</span>
+                                        <span id="carbRatio" class="font-bold text-slate-800">50%</span>
+                                    </div>
+                                    <div class="w-full bg-slate-100 rounded-full h-2">
+                                        <div id="carbBar" class="bg-amber-400 h-2 rounded-full" style="width: 50%"></div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <div class="flex justify-between text-xs mb-1">
+                                        <span class="text-slate-600 font-medium">단백질 (<span id="proteinGrams">100</span>g)</span>
+                                        <span id="proteinRatio" class="font-bold text-slate-800">20%</span>
+                                    </div>
+                                    <div class="w-full bg-slate-100 rounded-full h-2">
+                                        <div id="proteinBar" class="bg-blue-500 h-2 rounded-full" style="width: 20%"></div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <div class="flex justify-between text-xs mb-1">
+                                        <span class="text-slate-600 font-medium">지방 (<span id="fatGrams">60</span>g)</span>
+                                        <span id="fatRatio" class="font-bold text-slate-800">30%</span>
+                                    </div>
+                                    <div class="w-full bg-slate-100 rounded-full h-2">
+                                        <div id="fatBar" class="bg-rose-400 h-2 rounded-full" style="width: 30%"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 1. 현재 건강 관리에 대한 문제 분석 -->
+                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+                        <div class="flex items-center gap-2 mb-3">
+                            <div class="p-2 bg-amber-50 text-amber-600 rounded-xl">
+                                <i data-lucide="alert-circle" class="w-5 h-5"></i>
+                            </div>
+                            <h4 class="text-base font-bold text-slate-800">① 현재 건강 관리 문제 분석</h4>
+                        </div>
+                        <ul id="problemList" class="space-y-2 text-sm text-slate-600 pl-2">
+                            <!-- JS Inject -->
+                        </ul>
+                    </div>
+
+                    <!-- 2. 이를 해결하는 피드백 -->
+                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+                        <div class="flex items-center gap-2 mb-3">
+                            <div class="p-2 bg-blue-50 text-blue-600 rounded-xl">
+                                <i data-lucide="check-circle-2" class="w-5 h-5"></i>
+                            </div>
+                            <h4 class="text-base font-bold text-slate-800">② 맞춤형 해결 피드백</h4>
+                        </div>
+                        <div id="feedbackText" class="space-y-3 text-sm text-slate-600">
+                            <!-- JS Inject -->
+                        </div>
+                    </div>
+
+                    <!-- 3. 앞으로 미래 건강 관리 계획 짜주기 -->
+                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+                        <div class="flex items-center gap-2 mb-3">
+                            <div class="p-2 bg-emerald-50 text-emerald-600 rounded-xl">
+                                <i data-lucide="calendar" class="w-5 h-5"></i>
+                            </div>
+                            <h4 class="text-base font-bold text-slate-800">③ 미래 건강 관리 및 식단 계획</h4>
+                        </div>
+                        
+                        <!-- Timeline / Steps -->
+                        <div class="space-y-4 mt-4 border-l-2 border-emerald-100 pl-4 ml-2">
+                            <div>
+                                <span class="text-xs font-bold text-emerald-600 uppercase tracking-wide">1단계: 식단 비율 조정</span>
+                                <p id="planStep1" class="text-sm text-slate-700 mt-0.5">매 끼니 탄수화물, 단백질, 지방 식단을 손쉽게 맞추는 법을 익힙니다.</p>
+                            </div>
+                            <div>
+                                <span class="text-xs font-bold text-emerald-600 uppercase tracking-wide">2단계: 식사 시간 및 생활 습관</span>
+                                <p id="planStep2" class="text-sm text-slate-700 mt-0.5">규칙적인 식사 간격과 충분한 수분 섭취를 유지합니다.</p>
+                            </div>
+                            <div>
+                                <span class="text-xs font-bold text-emerald-600 uppercase tracking-wide">3단계: 지속 가능한 운동 조합</span>
+                                <p id="planStep3" class="text-sm text-slate-700 mt-0.5">주 3회 이상 꾸준히 실천할 수 있는 가벼운 유산소 및 근력 운동을 제안합니다.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+            </section>
+
+        </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-slate-200 mt-12 py-6">
+        <div class="max-w-5xl mx-auto px-4 text-center text-xs text-slate-400">
+            <p>SmartHealth 식단 및 건강 관리 서비스 &copy; 2026. All rights reserved.</p>
+            <p class="mt-1">본 서비스에서 제공하는 분석은 일반적인 영양 가이드라인에 기반하며 전문 의료 진단을 대체할 수 없습니다.</p>
+        </div>
+    </footer>
+
+    <!-- Script Section -->
+    <script>
+        let macroChartInstance = null;
+
+        // Initialize Lucide Icons
+        document.addEventListener("DOMContentLoaded", () => {
+            lucide.createIcons();
+        });
+
+        // Calculate Recommended Calorie automatically
+        function autoSetCalorie() {
+            const gender = document.getElementById('gender').value;
+            const age = parseFloat(document.getElementById('age').value) || 30;
+            const height = parseFloat(document.getElementById('height').value) || 170;
+            const weight = parseFloat(document.getElementById('weight').value) || 65;
+            const activity = parseFloat(document.getElementById('activity').value) || 1.375;
+
+            // BMR (Mifflin-St Jeor)
+            let bmr = (10 * weight) + (6.25 * height) - (5 * age);
+            bmr = (gender === 'male') ? bmr + 5 : bmr - 161;
+
+            const tdee = Math.round(bmr * activity);
+
+            // Set Target Calories
+            document.getElementById('targetCalories').value = tdee;
+
+            // Auto set balanced macros (Carbs 50%, Protein 20%, Fat 30%)
+            document.getElementById('targetCarbs').value = Math.round((tdee * 0.50) / 4);
+            document.getElementById('targetProtein').value = Math.round((tdee * 0.20) / 4);
+            document.getElementById('targetFat').value = Math.round((tdee * 0.30) / 9);
+        }
+
+        // Reset Form and Results
+        function resetApp() {
+            document.getElementById('healthForm').reset();
+            document.getElementById('emptyState').classList.remove('hidden');
+            document.getElementById('resultContent').classList.add('hidden');
+        }
+
+        // Main Calculation and Analysis Function
+        function calculateAndAnalyze(e) {
+            e.preventDefault();
+
+            // 1. Get Values
+            const gender = document.getElementById('gender').value;
+            const age = parseFloat(document.getElementById('age').value);
+            const height = parseFloat(document.getElementById('height').value);
+            const weight = parseFloat(document.getElementById('weight').value);
+            const activity = parseFloat(document.getElementById('activity').value);
+
+            const targetCal = parseFloat(document.getElementById('targetCalories').value);
+            const targetCarbs = parseFloat(document.getElementById('targetCarbs').value);
+            const targetProtein = parseFloat(document.getElementById('targetProtein').value);
+            const targetFat = parseFloat(document.getElementById('targetFat').value);
+
+            // 2. Fundamental Calculations
+            const bmi = (weight / ((height / 100) ** 2)).toFixed(1);
+            
+            // BMR & TDEE (Recommended Calories)
+            let bmr = (10 * weight) + (6.25 * height) - (5 * age);
+            bmr = (gender === 'male') ? bmr + 5 : bmr - 161;
+            const recCal = Math.round(bmr * activity);
+
+            // Macro Calories calculated from input grams
+            const carbsCal = targetCarbs * 4;
+            const proteinCal = targetProtein * 4;
+            const fatCal = targetFat * 9;
+            const calculatedTotalCal = carbsCal + proteinCal + fatCal;
+
+            // Macro Percentages based on calculated total macro energy
+            const carbRatio = Math.round((carbsCal / calculatedTotalCal) * 100) || 0;
+            const proteinRatio = Math.round((proteinCal / calculatedTotalCal) * 100) || 0;
+            const fatRatio = Math.round((fatCal / calculatedTotalCal) * 100) || 0;
+
+            // 3. Status Evaluation & Feedback Logic
+            let bmiStatus = "";
+            if (bmi < 18.5) bmiStatus = "저체중";
+            else if (bmi < 23) bmiStatus = "정상체중";
+            else if (bmi < 25) bmiStatus = "과체중";
+            else bmiStatus = "비만";
+
+            // Calorie comparison status
+            const calDiff = targetCal - recCal;
+            let calStatusText = "적정";
+            if (calDiff > 300) calStatusText = "칼로리 초과 세팅";
+            else if (calDiff < -300) calStatusText = "칼로리 부족 세팅";
+
+            // Identify Problems
+            let problems = [];
+            let feedbacks = [];
+            let planSteps = { step1: "", step2: "", step3: "" };
+
+            // Check Macros & Calories
+            if (carbRatio > 60) {
+                problems.push("<strong>탄수화물 비중 과다:</strong> 총 칼로리 중 탄수화물 비율이 " + carbRatio + "%로 높습니다. 혈당 변동이 심해지고 체지방으로 축적되기 쉽습니다.");
+                feedbacks.push("정제 탄수화물(빵, 면, 설탕) 섭취를 줄이고 <strong>통곡물, 채소, 고섬유질 식단</strong>으로 교체하세요.");
+            } else if (carbRatio < 40) {
+                problems.push("<strong>탄수화물 비중 부족:</strong> 탄수화물 비율이 " + carbRatio + "%로 낮은 편입니다. 일상 활동 중 에너지가 부족하거나 피로감을 쉽게 느낄 수 있습니다.");
+                feedbacks.push("고구마, 현미, 귀리 등 질 좋은 복합 탄수화물을 적절히 배치하여 기초 에너지를 확보하세요.");
+            }
+
+            if (proteinRatio < 15) {
+                problems.push("<strong>단백질 부족:</strong> 단백질 비율이 " + proteinRatio + "%에 불과합니다. 근손실 위험이 커지고 기초대사량이 떨어질 수 있습니다.");
+                feedbacks.push("매 끼니 닭가슴살, 계란, 두부, 생선 등 <strong>고단백 식품을 최소 한 손가락 크기 이상 포함</strong>하세요.");
+            } else if (proteinRatio > 35) {
+                problems.push("<strong>단백질 과다:</strong> 단백질 비중이 높은 편입니다. 신장에 부담을 줄 수 있으므로 충분한 수분 섭취가 동반되어야 합니다.");
+            }
+
+            if (fatRatio > 35) {
+                problems.push("<strong>지방 비율 과다:</strong> 지방 섭취가 " + fatRatio + "%로 다소 높습니다. 섭취 칼로리가 가파르게 늘어날 수 있습니다.");
+                feedbacks.push("포화지방 및 튀김류를 제한하고 견과류, 올리브유, 아보카도 같은 <strong>불포화 지방산 위주로 전환</strong>하세요.");
+            }
+
+            if (calDiff > 300) {
+                problems.push("<strong>목표 칼로리 과다:</strong> 권장 대사량(" + recCal + " kcal)보다 목표 칼로리가 약 " + Math.abs(calDiff) + " kcal 높습니다. 체중 증가 원인이 될 수 있습니다.");
+                feedbacks.push("체중 감량을 원하신다면 하루 칼로리를 권장량 수준으로 점진적으로 줄이는 것이 좋습니다.");
+            } else if (calDiff < -300) {
+                problems.push("<strong>목표 칼로리 과도한 제한:</strong> 권장 대사량(" + recCal + " kcal) 대비 " + Math.abs(calDiff) + " kcal 적게 설정되어 있습니다. 요요 현상이나 영양 불균형이 올 수 있습니다.");
+                feedbacks.push("너무 급격한 칼로리 제한은 대사율을 떨어뜨립니다. 권장량의 80~90% 수준을 유지하세요.");
+            }
+
+            if (problems.length === 0) {
+                problems.push("<strong>아주 훌륭한 영양 설계입니다!</strong> 설정하신 탄수화물, 단백질, 지방 비율 및 총 칼로리가 균형 잡혀 있습니다.");
+                feedbacks.push("현재 설정한 균형을 지속적으로 유지하면서 규칙적인 식사 시간을 지키는 데 집중해 보세요.");
+            }
+
+            // Future Plan Steps Generation
+            planSteps.step1 = `<strong>식단 배분 계획:</strong> 하루 총 ${targetCal} kcal를 목표로 탄수화물 ${targetCarbs}g, 단백질 ${targetProtein}g, 지방 ${targetFat}g을 아침-점심-저녁으로 3:4:3 비율로 나누어 섭취하세요.`;
+            
+            planSteps.step2 = `<strong>생활 습관 가이드:</strong> 식사 간격을 4~5시간으로 유두리 있게 유지하고, 하루 최소 2L 이상의 수분을 섭취하여 영양소 대사를 원활하게 도와주세요.`;
+            
+            if (bmiStatus === "과체중" || bmiStatus === "비만") {
+                planSteps.step3 = `<strong>운동 관리:</strong> 주 4회 이상 40분 이상의 중강도 유산소 운동(빠르게 걷기, 수영, 자전거)과 주 2회 전신 근력 운동을 병행하세요.`;
+            } else if (bmiStatus === "저체중") {
+                planSteps.step3 = `<strong>운동 관리:</strong> 과도한 유산소 운동보다는 근육량 증가를 위한 주 3~4회 웨이트 트레이닝 중심의 운동을 권장합니다.`;
+            } else {
+                planSteps.step3 = `<strong>운동 관리:</strong> 체중 유지 및 심폐 지구력을 위한 주 3회 유산소 운동 + 주 2회 기초 근력 운동을 조화롭게 실천하세요.`;
+            }
+
+            // 4. Update UI Elements
+            document.getElementById('bmiVal').innerText = bmi + " (" + bmiStatus + ")";
+            document.getElementById('recCalVal').innerText = recCal.toLocaleString() + " kcal";
+            document.getElementById('statusVal').innerText = calStatusText;
+
+            // Update Summary Card
+            document.getElementById('summaryTitle').innerText = `${gender === 'male' ? '남성' : '여성'} / ${age}세 / BMI ${bmi} (${bmiStatus}) 맞춤 분석 리포트`;
+            document.getElementById('summaryText').innerHTML = `
+                현재 목표 칼로리는 <strong>${targetCal.toLocaleString()} kcal</strong>이며, 권장 칼로리(${recCal.toLocaleString()} kcal) 대비 
+                <strong>${calStatusText}</strong> 상태입니다. 영양소 구성은 탄수화물 <strong>${carbRatio}%</strong>, 단백질 <strong>${proteinRatio}%</strong>, 지방 <strong>${fatRatio}%</strong>로 설정되어 있어, 
+                ${problems.length > 1 ? '몇 가지 영양 비율 개선이 필요합니다.' : '전반적으로 양호하고 안정적인 균형을 보이고 있습니다.'}
+            `;
+
+            // Update Macro Indicators
+            document.getElementById('carbGrams').innerText = targetCarbs;
+            document.getElementById('proteinGrams').innerText = targetProtein;
+            document.getElementById('fatGrams').innerText = targetFat;
+
+            document.getElementById('carbRatio').innerText = carbRatio + "%";
+            document.getElementById('proteinRatio').innerText = proteinRatio + "%";
+            document.getElementById('fatRatio').innerText = fatRatio + "%";
+
+            document.getElementById('carbBar').style.width = Math.min(carbRatio, 100) + "%";
+            document.getElementById('proteinBar').style.width = Math.min(proteinRatio, 100) + "%";
+            document.getElementById('fatBar').style.width = Math.min(fatRatio, 100) + "%";
+
+            // Render Problems List
+            const problemListEl = document.getElementById('problemList');
+            problemListEl.innerHTML = problems.map(p => `<li class="flex items-start gap-2"><span class="text-amber-500 font-bold">•</span><div>${p}</div></li>`).join('');
+
+            // Render Feedbacks
+            const feedbackTextEl = document.getElementById('feedbackText');
+            feedbackTextEl.innerHTML = feedbacks.map(f => `<p class="bg-slate-50 p-3 rounded-xl border border-slate-100">${f}</p>`).join('');
+
+            // Render Future Steps
+            document.getElementById('planStep1').innerHTML = planSteps.step1;
+            document.getElementById('planStep2').innerHTML = planSteps.step2;
+            document.getElementById('planStep3').innerHTML = planSteps.step3;
+
+            // Render Chart
+            renderChart(targetCarbs * 4, targetProtein * 4, targetFat * 9);
+
+            // Show Results
+            document.getElementById('emptyState').classList.add('hidden');
+            document.getElementById('resultContent').classList.remove('hidden');
+
+            // Refresh Lucide Icons in dynamically injected elements
+            lucide.createIcons();
+        }
+
+        // Render Macro Chart using Chart.js
+        function renderChart(carbCal, proteinCal, fatCal) {
+            const ctx = document.getElementById('macroChart').getContext('2d');
+
+            if (macroChartInstance) {
+                macroChartInstance.destroy();
+            }
+
+            macroChartInstance = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['탄수화물', '단백질', '지방'],
+                    datasets: [{
+                        data: [carbCal, proteinCal, fatCal],
+                        backgroundColor: ['#f59e0b', '#3b82f6', '#fb7185'],
+                        borderWidth: 2,
+                        borderColor: '#ffffff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const label = context.label || '';
+                                    const value = context.raw || 0;
+                                    return `${label}: ${Math.round(value)} kcal`;
+                                }
+                            }
+                        }
+                    },
+                    cutout: '70%'
+                }
+            });
+        }
+    </script>
+</body>
+</html>
