@@ -1,1 +1,513 @@
 
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>건강한 나를 위한 맞춤 식단 플래너</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Pretendard:wght@400;500;600;700&display=swap');
+    body {
+      font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif;
+      background-color: #f4fbf7;
+    }
+    /* Smooth Scroll and custom scrollbar */
+    html {
+      scroll-behavior: smooth;
+    }
+    ::-webkit-scrollbar {
+      width: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #e8f5e9;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #81c784;
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #66bb6a;
+    }
+  </style>
+</head>
+<body class="text-slate-800 antialiased min-h-screen flex flex-col justify-between">
+
+  <!-- Header Section -->
+  <header class="bg-emerald-600 text-white shadow-md sticky top-0 z-50">
+    <div class="max-w-5xl mx-auto px-4 py-4 flex items-center justify-between">
+      <div class="flex items-center space-x-3">
+        <div class="bg-white p-2 rounded-xl text-emerald-600 shadow-inner">
+          <i data-lucide="utensils" class="w-6 h-6"></i>
+        </div>
+        <div>
+          <h1 class="text-xl font-bold tracking-tight">FitEat 맞춤 식단 플래너</h1>
+          <p class="text-xs text-emerald-100">건강한 비만 관리 및 영양 균형 일주일 솔루션</p>
+        </div>
+      </div>
+      <div class="hidden sm:flex items-center space-x-2 text-xs bg-emerald-700/50 px-3 py-1.5 rounded-full border border-emerald-400/30">
+        <i data-lucide="sparkles" class="w-4 h-4 text-amber-300"></i>
+        <span>AI 기반 체형별 식단 설계</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content Area -->
+  <main class="max-w-5xl mx-auto px-4 py-8 flex-grow w-full">
+    
+    <!-- Hero & Input Form -->
+    <div class="grid grid-cols-1 md:grid-cols-12 gap-8 items-start mb-10">
+      
+      <!-- Left side: Description & Input Form -->
+      <div class="md:col-span-5 bg-white p-6 md:p-8 rounded-3xl shadow-sm border border-emerald-100">
+        <div class="mb-6">
+          <span class="inline-block px-3 py-1 bg-emerald-100 text-emerald-800 text-xs font-semibold rounded-full mb-2">신체 정보 입력</span>
+          <h2 class="text-2xl font-bold text-slate-800">내 몸의 상태 분석하기</h2>
+          <p class="text-slate-500 text-sm mt-1">키와 몸무게를 입력하시면 BMI 비만도 판정과 7일 맞춤 식단을 즉시 추천해 드립니다.</p>
+        </div>
+
+        <form id="bmiForm" class="space-y-5" onsubmit="event.preventDefault(); calculateAndGenerate();">
+          <!-- Height Input -->
+          <div>
+            <label for="height" class="block text-sm font-semibold text-slate-700 mb-1 flex items-center gap-1.5">
+              <i data-lucide="ruler" class="w-4 h-4 text-emerald-600"></i> 키 (cm)
+            </label>
+            <div class="relative">
+              <input type="number" id="height" required min="100" max="230" step="0.1" placeholder="예: 175"
+                class="w-full pl-4 pr-12 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:bg-white focus:outline-none transition font-medium text-slate-800">
+              <span class="absolute right-4 top-3.5 text-slate-400 text-sm">cm</span>
+            </div>
+          </div>
+
+          <!-- Weight Input -->
+          <div>
+            <label for="weight" class="block text-sm font-semibold text-slate-700 mb-1 flex items-center gap-1.5">
+              <i data-lucide="weight" class="w-4 h-4 text-emerald-600"></i> 몸무게 (kg)
+            </label>
+            <div class="relative">
+              <input type="number" id="weight" required min="30" max="250" step="0.1" placeholder="예: 70"
+                class="w-full pl-4 pr-12 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:bg-white focus:outline-none transition font-medium text-slate-800">
+              <span class="absolute right-4 top-3.5 text-slate-400 text-sm">kg</span>
+            </div>
+          </div>
+
+          <!-- Activity Level (Optional Filter for accuracy) -->
+          <div>
+            <label for="activity" class="block text-sm font-semibold text-slate-700 mb-1 flex items-center gap-1.5">
+              <i data-lucide="activity" class="w-4 h-4 text-emerald-600"></i> 평소 활동량
+            </label>
+            <select id="activity" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:bg-white focus:outline-none transition font-medium text-slate-800">
+              <option value="low">활동량 적음 (주로 앉아서 생활)</option>
+              <option value="medium" selected>보통 활동량 (주 2~3회 가벼운 운동)</option>
+              <option value="high">활동량 많음 (매일 활발한 운동)</option>
+            </select>
+          </div>
+
+          <button type="submit" 
+            class="w-full py-4 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl shadow-lg shadow-emerald-600/30 transition transform active:scale-98 flex items-center justify-center space-x-2 text-base">
+            <i data-lucide="calculator" class="w-5 h-5"></i>
+            <span>진단 및 식단표 생성하기</span>
+          </button>
+        </form>
+      </div>
+
+      <!-- Right side: Info Cards / Welcome Banner -->
+      <div class="md:col-span-7 flex flex-col justify-between space-y-4">
+        <!-- Banner Card -->
+        <div class="bg-gradient-to-br from-emerald-500 to-teal-700 text-white p-6 md:p-8 rounded-3xl shadow-md relative overflow-hidden">
+          <div class="absolute -right-6 -bottom-6 text-white/10 pointer-events-none">
+            <i data-lucide="apple" class="w-64 h-64"></i>
+          </div>
+          <div class="relative z-10">
+            <span class="inline-block bg-white/20 backdrop-blur-md text-white text-xs px-3 py-1 rounded-full font-semibold mb-3">건강 가이드</span>
+            <h3 class="text-2xl font-bold mb-2">올바른 비만 관리의 시작</h3>
+            <p class="text-emerald-100 text-sm leading-relaxed mb-4">
+              단순히 굶는 다이어트는 요요현상과 건강 손상을 유발합니다. <br/>
+              자신의 체중 분석 결과를 바탕으로 한 영양 균형 7일 식단으로 지속 가능한 건강 관리를 만들어 가세요.
+            </p>
+            <div class="grid grid-cols-3 gap-2 pt-2 border-t border-white/20 text-center">
+              <div class="bg-white/10 p-2 rounded-xl backdrop-blur-sm">
+                <p class="text-xs text-emerald-100">체지방 감소</p>
+                <p class="font-bold text-sm">탄단지 균형</p>
+              </div>
+              <div class="bg-white/10 p-2 rounded-xl backdrop-blur-sm">
+                <p class="text-xs text-emerald-100">혈당 관리</p>
+                <p class="font-bold text-sm">GI지수 고려</p>
+              </div>
+              <div class="bg-white/10 p-2 rounded-xl backdrop-blur-sm">
+                <p class="text-xs text-emerald-100">지속 가능성</p>
+                <p class="font-bold text-sm">7일 맞춤 플랜</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- BMI Category Reference Quick Guide -->
+        <div class="bg-white p-5 rounded-2xl shadow-sm border border-emerald-100">
+          <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">대한비만학회 BMI 판정 기준</h4>
+          <div class="grid grid-cols-4 gap-2 text-center text-xs font-medium">
+            <div class="p-2.5 rounded-xl bg-blue-50 text-blue-700 border border-blue-100">
+              <p class="font-bold">저체중</p>
+              <p class="text-[11px] opacity-80">&lt; 18.5</p>
+            </div>
+            <div class="p-2.5 rounded-xl bg-emerald-50 text-emerald-700 border border-emerald-100">
+              <p class="font-bold">정상체중</p>
+              <p class="text-[11px] opacity-80">18.5 ~ 22.9</p>
+            </div>
+            <div class="p-2.5 rounded-xl bg-amber-50 text-amber-700 border border-amber-100">
+              <p class="font-bold">과체중</p>
+              <p class="text-[11px] opacity-80">23 ~ 24.9</p>
+            </div>
+            <div class="p-2.5 rounded-xl bg-rose-50 text-rose-700 border border-rose-100">
+              <p class="font-bold">비만</p>
+              <p class="text-[11px] opacity-80">&ge; 25.0</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Results Section (Initially Hidden) -->
+    <div id="resultSection" class="hidden space-y-8 animate-fadeIn">
+      
+      <!-- Diagnostic Summary Card -->
+      <div id="diagnosticCard" class="bg-white p-6 md:p-8 rounded-3xl shadow-sm border border-slate-100 transition-all">
+        <div class="flex flex-col md:flex-row items-center justify-between gap-6">
+          
+          <!-- Left: BMI Number & Status -->
+          <div class="flex items-center space-x-5 w-full md:w-auto">
+            <div id="bmiBadge" class="w-24 h-24 rounded-2xl flex flex-col items-center justify-center text-white font-bold shadow-md shrink-0">
+              <span class="text-xs uppercase opacity-80">BMI</span>
+              <span id="bmiValue" class="text-2xl">24.2</span>
+            </div>
+            <div>
+              <div class="flex items-center gap-2">
+                <span id="statusTag" class="px-3 py-1 rounded-full text-xs font-bold">과체중</span>
+                <span class="text-xs text-slate-400">신체질량지수 측정결과</span>
+              </div>
+              <h3 id="statusTitle" class="text-2xl font-bold text-slate-800 mt-1">체중 관리가 필요한 상태입니다</h3>
+              <p id="statusDesc" class="text-sm text-slate-500 mt-1">적절한 식단 조절과 규칙적인 운동으로 건강 체중으로 진입할 수 있습니다.</p>
+            </div>
+          </div>
+
+          <!-- Severe Warning Alert (Shown if Obese) -->
+          <div id="severeAlert" class="hidden w-full md:w-auto bg-rose-50 border-2 border-rose-200 p-4 rounded-2xl flex items-start space-x-3 text-rose-800 max-w-md">
+            <div class="p-2 bg-rose-500 text-white rounded-xl shrink-0 mt-0.5">
+              <i data-lucide="alert-triangle" class="w-5 h-5"></i>
+            </div>
+            <div class="text-xs leading-relaxed">
+              <p class="font-bold text-sm text-rose-900 mb-0.5">⚠️ 비만 상태 안내 (심각함)</p>
+              <p>비만 상태는 당뇨병, 고혈압, 심뇌혈관 질환 등 성인병 발병 위험을 크게 높입니다. 전문적인 식단 관리와 생활 습관 개선이 시급한 시점입니다.</p>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Progress Bar Visualizer -->
+        <div class="mt-8">
+          <div class="flex justify-between text-xs font-semibold text-slate-500 mb-2">
+            <span>15 (저체중)</span>
+            <span>18.5 (정상)</span>
+            <span>23 (과체중)</span>
+            <span>25 (비만)</span>
+            <span>35+ (고도비만)</span>
+          </div>
+          <div class="w-full bg-slate-100 rounded-full h-3 relative overflow-hidden flex">
+            <div class="w-[17.5%] bg-blue-300 h-full"></div>
+            <div class="w-[22.5%] bg-emerald-400 h-full"></div>
+            <div class="w-[10%] bg-amber-400 h-full"></div>
+            <div class="w-[50%] bg-rose-500 h-full"></div>
+          </div>
+          <!-- Target Marker Indicator -->
+          <div class="relative w-full h-4 mt-1">
+            <div id="markerPin" class="absolute -top-1 transform -translate-x-1/2 flex flex-col items-center transition-all duration-500" style="left: 50%;">
+              <div class="w-3 h-3 bg-slate-800 rotate-45"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Meal Plan Section Header -->
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 pb-4">
+        <div>
+          <h2 class="text-2xl font-bold text-slate-800 flex items-center gap-2">
+            <i data-lucide="calendar" class="w-6 h-6 text-emerald-600"></i>
+            맞춤 일주일(7일) 추천 식단
+          </h2>
+          <p class="text-slate-500 text-sm mt-0.5">고객님의 비만도에 맞춰 영양소 비율을 최적화한 식단표입니다.</p>
+        </div>
+        
+        <!-- Target Calories Summary Box -->
+        <div class="bg-emerald-50 border border-emerald-200 px-4 py-2 rounded-2xl flex items-center gap-3">
+          <i data-lucide="flame" class="w-5 h-5 text-emerald-600"></i>
+          <div>
+            <p class="text-[11px] text-emerald-700 font-medium">권장 일일 섭취 칼로리</p>
+            <p id="recommendedCal" class="text-base font-bold text-emerald-900">1,800 ~ 2,000 kcal</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Weekly Meal Cards Grid -->
+      <div id="weeklyMealContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <!-- JavaScript will populate 7 daily cards here -->
+      </div>
+
+      <!-- Health Advice Banner -->
+      <div class="bg-amber-50 border border-amber-200 rounded-2xl p-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+        <div class="flex items-start space-x-4">
+          <div class="p-3 bg-amber-400 text-amber-950 rounded-2xl shrink-0">
+            <i data-lucide="lightbulb" class="w-6 h-6"></i>
+          </div>
+          <div>
+            <h4 class="font-bold text-amber-950 text-base">식단 이행 시 필수 준수 수칙</h4>
+            <ul class="text-xs text-amber-900/80 list-disc list-inside mt-1 space-y-1">
+              <li>식사 전 500ml 미온수를 마시면 과식을 예방할 수 있습니다.</li>
+              <li>음식은 한 입에 20회 이상 천천히 씹어 드세요 (만복감 호르몬 분비).</li>
+              <li>저녁 식사는 취침 최소 3~4시간 전에 완료해야 체지방 축적을 막습니다.</li>
+            </ul>
+          </div>
+        </div>
+        <button onclick="window.scrollTo({top: 0, behavior: 'smooth'});" class="px-4 py-2.5 bg-amber-200 hover:bg-amber-300 text-amber-950 font-bold rounded-xl text-xs whitespace-nowrap transition">
+          다시 계산하기
+        </button>
+      </div>
+
+    </div>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="bg-slate-900 text-slate-400 py-8 border-t border-slate-800 text-xs">
+    <div class="max-w-5xl mx-auto px-4 text-center space-y-2">
+      <p class="font-semibold text-slate-300">FitEat 비만 관리 맞춤 식단 솔루션</p>
+      <p class="max-w-xl mx-auto text-slate-500">본 웹앱에서 제공하는 BMI 계산 결과 및 식단 가이드는 일반적인 영양 기준을 토대로 한 참고 자료이며, 개별 건강 상태나 질환에 따른 정밀 식단은 전문 의료진 및 영양사와 상담하시길 권장합니다.</p>
+      <p class="text-slate-600 pt-2">© 2026 FitEat All rights reserved.</p>
+    </div>
+  </footer>
+
+  <!-- Inline Application Logic JavaScript -->
+  <script>
+    // Initialize icons
+    lucide.createIcons();
+
+    // Meal Database Templates grouped by Health Status
+    const mealDatabase = {
+      underweight: [ // Low Calorie -> Weight gain with protein
+        { day: '월요일', cal: '2,200', breakfast: '현미밥 1공기, 계란후라이 2개, 시금치나물, 두부조림', lunch: '닭갈비 덮밥, 샐러드, 견과류 한 주먹', dinner: '연어구이, 단호박 샐러드, 된장찌개', snack: '바나나 1개 + 우유 1잔' },
+        { day: '화요일', cal: '2,250', breakfast: '통밀식빵 2장, 스크램블 에그, 사과 1/2개', lunch: '소고기 볶음밥, 오렌지 juice, 백김치', dinner: '돼지목살 구이, 상추쌈, 버섯볶음', snack: '아몬드 및 호두 듬뿍' },
+        { day: '수요일', cal: '2,150', breakfast: '오트밀 볼(우유+꿀+블루베리+견과류)', lunch: '삼계탕 반마리, 찹쌀밥, 깍두기', dinner: '고등어구이, 청국장, 계란찜', snack: '플레인 요거트 + 단호박' },
+        { day: '목요일', cal: '2,200', breakfast: '잡곡밥 1공기, 햄계란말이, 미역국', lunch: '파스타(라구 소스), 리코타치즈 샐러드', dinner: '소불고기, 모듬 쌈채소, 된장국', snack: '두유 1팩 + 찐고구마 1개' },
+        { day: '금요일', cal: '2,300', breakfast: '전복죽, 계란장조림, 나물무침', lunch: '수제 쇠고기 버거(통밀번), 감자튀김 소량', dinner: '훈제오리 구이, 부추무침, 된장찌개', snack: '삶은 계란 2개 + 오렌지' },
+        { day: '토요일', cal: '2,200', breakfast: '프렌치토스트, 베이컨 2줄, 우유', lunch: '해물칼국수, 만두 2개, 겉절이', dinner: '닭볶음탕, 잡곡밥 1공기, 콩나물국', snack: '치즈 2장 + 프로틴 쉐이크' },
+        { day: '일요일', cal: '2,250', breakfast: '귀리밥, 차돌박이 된장찌개, 비엔나소시지', lunch: '안심 스테이크, 메쉬드 포테이토, 샐러드', dinner: '삼치구이, 계란말이, 시금치국', snack: '제철 과일 모듬' }
+      ],
+      normal: [ // Balanced Wellness Maintenance
+        { day: '월요일', cal: '1,800', breakfast: '현미잡곡밥 2/3공기, 계란말이, 미역국', lunch: '닭가슴살 카레라이스, 양배추 샐러드', dinner: '고등어 구이, 구운 버섯, 된장찌개', snack: '방울토마토 10알' },
+        { day: '화요일', cal: '1,750', breakfast: '통밀식빵 1장, 에그 스크램블, 사과 1/2개', lunch: '비빔밥(밥 2/3, 계란후라이, 약고추장 소량)', dinner: '훈제오리 구이, 부추무침, 상추쌈', snack: '아몬드 10알 + 무당 두유' },
+        { day: '수요일', cal: '1,800', breakfast: '오트밀 50g + 저지방 우유 + 사과 조각', lunch: '소불고기 덮밥(현미밥), 백김치', dinner: '연어 스테이크, 아스파라거스 구이, 샐러드', snack: '플레인 그리시니 or 오이' },
+        { day: '목요일', cal: '1,700', breakfast: '잡곡밥 2/3공기, 두부구이, 콩나물국', lunch: '통밀 파스타(알리오 올리오 + 새우)', dinner: '닭안심 살구이, 단호박 슬라이스, 겉절이', snack: '삶은 계란 1개 + 삶은 양배추' },
+        { day: '금요일', cal: '1,850', breakfast: '단호박 죽, 계란장조림 2개', lunch: '제육볶음(살코기 위주), 모둠 쌈', dinner: '삼치구이, 된장찌개, 오이무침', snack: '견과류 한 줌' },
+        { day: '토요일', cal: '1,800', breakfast: '통밀 또띠아 닭가슴살 랩 1개', lunch: '메밀소바, 야채 튀김 1개', dinner: '소고기 안심 구이, 버섯 구이, 파채', snack: '사과 1/2개' },
+        { day: '일요일', cal: '1,750', breakfast: '현미밥 2/3공기, 순두부찌개, 나물 2종', lunch: '해산물 샐러드 파스타, 스파클링 워터', dinner: '닭가슴살 볶음밥, 계란국', snack: '저지방 요거트' }
+      ],
+      overweight: [ // Mild Calorie Deficit
+        { day: '월요일', cal: '1,500', breakfast: '현미밥 1/2공기, 두부부침 2쪽, 김치국', lunch: '닭가슴살 샐러드(오리엔탈 드레싱), 고구마 1개', dinner: '소고기 우둔살 구이, 쌈채소 듬뿍', snack: '방울토마토 15알' },
+        { day: '화요일', cal: '1,450', breakfast: '삶은 계란 2개, 저지방 우유 1잔, 오이', lunch: '현미 잡곡 비빔밥(고추장 반스푼, 나물 위주)', dinner: '연어 구이 100g, 아스파라거스, 미역국', snack: '아몬드 8알' },
+        { day: '수요일', cal: '1,500', breakfast: '오트밀 40g + 저지방 우유 + 블루베리', lunch: '훈제 오리 샐러드, 단호박 2슬라이스', dinner: '오징어 볶음(채소 듬뿍, 현미밥 1/2공기)', snack: '파프리카 스틱' },
+        { day: '목요일', cal: '1,400', breakfast: '통밀 식빵 1장, 계란후라이(기름 적게), 사과 1/4개', lunch: '닭가슴살 볶음밥(현미), 샐러드', dinner: '두부 한 모, 볶은 김치(기름 최소화)', snack: '무당 두유 1팩' },
+        { day: '금요일', cal: '1,500', breakfast: '현미밥 1/2공기, 콩나물국, 계란찜', lunch: '소불고기(양파, 버섯 다량), 쌈채소', dinner: '삼치 구이 1토막, 양배추 쌈, 된장국', snack: '삶은 계란 1개' },
+        { day: '토요일', cal: '1,450', breakfast: '단호박 1/2개, 저지방 요거트, 견과류 소량', lunch: '소고기 야채 롤 구이, 리코타 샐러드', dinner: '닭가슴살 구이, 구운 가지 & 토마토', snack: '방울토마토 10알' },
+        { day: '일요일', cal: '1,400', breakfast: '귀리 곤약밥 1/2공기, 소고기 무국, 시금치', lunch: '통밀 닭가슴살 샌드위치 (마요네즈 제외)', dinner: '해산물 찌개(오징어/새우), 두부 2쪽', snack: '자몽 1/2개' }
+      ],
+      obese: [ // Low Carb High Protein Strict Diet
+        { day: '월요일', cal: '1,200~1,300', breakfast: '삶은 계란 2개, 오이 1개, 블랙 커피', lunch: '닭가슴살(150g) 그린 샐러드 (발사믹 드레싱)', dinner: '곤약 현미밥 1/2공기, 두부구이, 맑은 콩나물국', snack: '방울토마토 10알' },
+        { day: '화요일', cal: '1,250', breakfast: '무당 저지방 요거트, 견과류 5알, 사과 1/4개', lunch: '소고기 우둔살(120g) 구이, 모듬 쌈채소, 파프리카', dinner: '훈제 닭가슴살, 구운 양배추, 미역초무침', snack: '셀러리 스틱' },
+        { day: '수요일', cal: '1,200', breakfast: '계란 흰자 3개 스크램블, 토마토 1개', lunch: '오징어 숙회, 브로콜리 데침, 곤약밥 1/2공기', dinner: '연어 아보카도 샐러드 (드레싱 소량)', snack: '무당 두유 1팩' },
+        { day: '목요일', cal: '1,250', breakfast: '오트밀 30g + 물/저지방우유, 삶은 계란 1개', lunch: '닭안심 버섯 볶음, 쌈채소, 백김치', dinner: '두부 유부초밥(밥 대신 두부 필링) 4개, 샐러드', snack: '오이 1개' },
+        { day: '금요일', cal: '1,200', breakfast: '삶은 계란 2개, 찐 단호박 100g', lunch: '소고기 샤브샤브(채소/버섯 위주, 칼국수/죽 제외)', dinner: '흰살생선(가자미/대구) 구이, 파프리카, 양배추', snack: '방울토마토 10알' },
+        { day: '토요일', cal: '1,300', breakfast: '통밀 식빵 1장(잼 없이), 수란 1개, 아메리카노', lunch: '닭가슴살 월남쌈 (라이스페이퍼 최소화, 야채 위주)', dinner: '소고기 살코기 구이, 구운 마늘 & 버섯, 상추', snack: '삶은 계란 흰자 2개' },
+        { day: '일요일', cal: '1,200', breakfast: '두부 1/2모 데침, 볶은 김치 소량', lunch: '해산물 샐러드(새우/오징어), 고구마 소(80g)', dinner: '닭가슴살 스테이크, 구운 아스파라거스 & 토마토', snack: '자몽 1/2개' }
+      ]
+    };
+
+    function calculateAndGenerate() {
+      const heightInput = parseFloat(document.getElementById('height').value);
+      const weightInput = parseFloat(document.getElementById('weight').value);
+
+      if (!heightInput || !weightInput || heightInput <= 0 || weightInput <= 0) {
+        alert('올바른 키와 몸무게를 입력해 주세요.');
+        return;
+      }
+
+      // Calculate BMI: weight(kg) / (height(m) * height(m))
+      const heightInMeters = heightInput / 100;
+      const bmi = (weightInput / (heightInMeters * heightInMeters)).toFixed(1);
+
+      // Determine Category
+      // underweight: < 18.5, normal: 18.5 - 22.9, overweight: 23 - 24.9, obese: >= 25
+      let category = '';
+      let statusText = '';
+      let statusColorClass = '';
+      let badgeBg = '';
+      let descText = '';
+      let markerPos = 0; // % position on progress bar
+      let isObese = false;
+
+      if (bmi < 18.5) {
+        category = 'underweight';
+        statusText = '저체중';
+        statusColorClass = 'bg-blue-100 text-blue-800 border-blue-200';
+        badgeBg = 'bg-blue-500';
+        descText = '체중 증가 및 근육량 증진을 위한 고단백 영양 식단이 필요합니다.';
+        markerPos = Math.max(5, ((bmi - 12) / (18.5 - 12)) * 17.5);
+      } else if (bmi >= 18.5 && bmi < 23.0) {
+        category = 'normal';
+        statusText = '정상 체중';
+        statusColorClass = 'bg-emerald-100 text-emerald-800 border-emerald-200';
+        badgeBg = 'bg-emerald-500';
+        descText = '훌륭합니다! 현재의 건강한 체중과 식습관을 지속적으로 유지하세요.';
+        markerPos = 17.5 + ((bmi - 18.5) / (23.0 - 18.5)) * 22.5;
+      } else if (bmi >= 23.0 && bmi < 25.0) {
+        category = 'overweight';
+        statusText = '과체중';
+        statusColorClass = 'bg-amber-100 text-amber-800 border-amber-200';
+        badgeBg = 'bg-amber-500';
+        descText = '비만 단계로 접어들지 않도록 식단 관리와 가벼운 운동을 추천합니다.';
+        markerPos = 40 + ((bmi - 23.0) / (25.0 - 23.0)) * 10;
+      } else {
+        category = 'obese';
+        statusText = '비만';
+        statusColorClass = 'bg-rose-100 text-rose-800 border-rose-200';
+        badgeBg = 'bg-rose-600';
+        descText = '비만 관리 및 체지방 감량을 목표로 한 저칼로리 고단백 식단이 필요합니다.';
+        markerPos = Math.min(95, 50 + ((bmi - 25.0) / (35.0 - 25.0)) * 45);
+        isObese = true;
+      }
+
+      // Update UI Diagnostic Result
+      document.getElementById('bmiValue').innerText = bmi;
+      
+      const badge = document.getElementById('bmiBadge');
+      badge.className = `w-24 h-24 rounded-2xl flex flex-col items-center justify-center text-white font-bold shadow-md shrink-0 transition-colors ${badgeBg}`;
+
+      const statusTag = document.getElementById('statusTag');
+      statusTag.innerText = statusText;
+      statusTag.className = `px-3 py-1 rounded-full text-xs font-bold border ${statusColorClass}`;
+
+      document.getElementById('statusTitle').innerText = isObese 
+        ? '비만 관리가 시급한 상태입니다' 
+        : `현재 신체 상태는 [${statusText}] 입니다`;
+
+      document.getElementById('statusDesc').innerText = descText;
+
+      // Show/Hide Severe Warning Banner
+      const severeAlert = document.getElementById('severeAlert');
+      if (isObese) {
+        severeAlert.classList.remove('hidden');
+      } else {
+        severeAlert.classList.add('hidden');
+      }
+
+      // Position Marker
+      document.getElementById('markerPin').style.left = `${markerPos}%`;
+
+      // Set Recommended Calories Text
+      const recCalElement = document.getElementById('recommendedCal');
+      if (category === 'underweight') recCalElement.innerText = '2,100 ~ 2,300 kcal';
+      else if (category === 'normal') recCalElement.innerText = '1,750 ~ 1,900 kcal';
+      else if (category === 'overweight') recCalElement.innerText = '1,450 ~ 1,600 kcal';
+      else recCalElement.innerText = '1,200 ~ 1,350 kcal (체지방 감량 타겟)';
+
+      // Render 7-Day Meal Cards
+      renderMealCards(mealDatabase[category]);
+
+      // Reveal Result Section & Scroll
+      const resultSection = document.getElementById('resultSection');
+      resultSection.classList.remove('hidden');
+      resultSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    function renderMealCards(meals) {
+      const container = document.getElementById('weeklyMealContainer');
+      container.innerHTML = ''; // Clear previous
+
+      meals.forEach((item, index) => {
+        const card = document.createElement('div');
+        card.className = "bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden hover:shadow-md transition-all flex flex-col justify-between";
+        
+        card.innerHTML = `
+          <div>
+            <!-- Day Header -->
+            <div class="bg-slate-50 px-5 py-3 border-b border-slate-100 flex items-center justify-between">
+              <div class="flex items-center space-x-2">
+                <span class="w-7 h-7 rounded-full bg-emerald-600 text-white font-bold text-xs flex items-center justify-center">
+                  ${index + 1}
+                </span>
+                <h3 class="font-bold text-slate-800">${item.day}</h3>
+              </div>
+              <span class="text-xs font-semibold px-2.5 py-1 bg-emerald-50 text-emerald-700 rounded-lg">
+                목표 ${item.cal} kcal
+              </span>
+            </div>
+
+            <!-- Meals List -->
+            <div class="p-5 space-y-4 text-xs">
+              <!-- Breakfast -->
+              <div class="flex items-start space-x-3">
+                <div class="p-1.5 bg-amber-50 text-amber-600 rounded-lg shrink-0 mt-0.5">
+                  <i data-lucide="sun" class="w-4 h-4"></i>
+                </div>
+                <div>
+                  <p class="font-bold text-slate-700">아침</p>
+                  <p class="text-slate-600 mt-0.5 leading-relaxed">${item.breakfast}</p>
+                </div>
+              </div>
+
+              <!-- Lunch -->
+              <div class="flex items-start space-x-3">
+                <div class="p-1.5 bg-orange-50 text-orange-600 rounded-lg shrink-0 mt-0.5">
+                  <i data-lucide="utensils" class="w-4 h-4"></i>
+                </div>
+                <div>
+                  <p class="font-bold text-slate-700">점심</p>
+                  <p class="text-slate-600 mt-0.5 leading-relaxed">${item.lunch}</p>
+                </div>
+              </div>
+
+              <!-- Dinner -->
+              <div class="flex items-start space-x-3">
+                <div class="p-1.5 bg-indigo-50 text-indigo-600 rounded-lg shrink-0 mt-0.5">
+                  <i data-lucide="moon" class="w-4 h-4"></i>
+                </div>
+                <div>
+                  <p class="font-bold text-slate-700">저녁</p>
+                  <p class="text-slate-600 mt-0.5 leading-relaxed">${item.dinner}</p>
+                </div>
+              </div>
+
+              <!-- Snack -->
+              <div class="flex items-start space-x-3 pt-2 border-t border-dashed border-slate-100">
+                <div class="p-1.5 bg-emerald-50 text-emerald-600 rounded-lg shrink-0 mt-0.5">
+                  <i data-lucide="apple" class="w-4 h-4"></i>
+                </div>
+                <div>
+                  <p class="font-bold text-slate-700">권장 간식</p>
+                  <p class="text-slate-500 mt-0.5">${item.snack}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        `;
+
+        container.appendChild(card);
+      });
+
+      // Re-render Lucide icons inside dynamically created cards
+      lucide.createIcons();
+    }
+  </script>
+</body>
+</html>
