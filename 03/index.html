@@ -1,1 +1,565 @@
 
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MorningBalance - 아침 맞춤 식단 설계기</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- FontAwesome CDN for fallback icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts (Noto Sans KR) -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#f0fdf4',
+                            100: '#dcfce7',
+                            200: '#bbf7d0',
+                            500: '#22c55e',
+                            600: '#16a34a',
+                            700: '#15803d',
+                        },
+                        warm: {
+                            50: '#fffbeb',
+                            100: '#fef3c7',
+                            500: '#f59e0b',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Noto Sans KR', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+            background-color: #f8fafc;
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(226, 232, 240, 0.8);
+        }
+        .progress-bar-transition {
+            transition: width 0.8s ease-in-out;
+        }
+    </style>
+</head>
+<body class="text-slate-800 min-h-screen flex flex-col justify-between">
+
+    <!-- Header Navigation -->
+    <header class="bg-white border-b border-slate-200 sticky top-0 z-50">
+        <div class="max-w-4xl mx-auto px-4 py-3 flex items-center justify-between">
+            <div class="flex items-center space-x-2">
+                <div class="w-9 h-9 bg-brand-500 rounded-xl flex items-center justify-center text-white font-bold text-xl shadow-md shadow-brand-200">
+                    <i class="fa-solid fa-utensils"></i>
+                </div>
+                <span class="font-bold text-lg text-slate-800 tracking-tight">Morning<span class="text-brand-600">Balance</span></span>
+            </div>
+            <span class="text-xs bg-brand-100 text-brand-700 font-semibold px-2.5 py-1 rounded-full flex items-center gap-1">
+                <i class="fa-solid fa-leaf text-xs"></i> 건강한 맞춤 식단
+            </span>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="max-w-4xl mx-auto px-4 py-6 w-full flex-grow">
+        
+        <!-- Hero Intro Card -->
+        <section class="bg-gradient-to-br from-brand-500 to-emerald-600 rounded-3xl p-6 text-white shadow-lg mb-8 relative overflow-hidden">
+            <div class="relative z-10">
+                <span class="inline-block px-3 py-1 bg-white/20 backdrop-blur-md rounded-full text-xs font-medium mb-3">
+                    ☀️ 아침 식사 습관 진단 & 하루 식단 설계
+                </span>
+                <h1 class="text-2xl sm:text-3xl font-bold mb-2">아침에 무엇을, 얼마나 드셨나요?</h1>
+                <p class="text-brand-100 text-sm sm:text-base max-w-xl">
+                    아침 식사량과 메뉴를 입력해 주시면, 맞춤형 영양 분석과 함께 완벽한 오늘 하루 남은 식단을 설계해 드려요!
+                </p>
+            </div>
+            <i class="fa-solid fa-sun absolute -bottom-6 -right-6 text-9xl text-white/10 pointer-events-none"></i>
+        </section>
+
+        <!-- Main Grid Layout -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+            
+            <!-- Left Form Area (5 Cols on LG) -->
+            <div class="lg:col-span-5 space-y-6">
+                <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-100">
+                    <h2 class="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
+                        <i class="fa-solid fa-[#16a34a] fa-pen-to-square text-brand-600"></i> 아침 식사 입력하기
+                    </h2>
+
+                    <!-- Form -->
+                    <form id="dietForm" class="space-y-5">
+                        <!-- Goal Selection -->
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 uppercase mb-2">식단 관리 목표</label>
+                            <select id="userGoal" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 font-medium">
+                                <option value="weight_loss">📉 체중 감량 (다이어트)</option>
+                                <option value="maintenance" selected>🌿 건강 증진 & 체중 유지</option>
+                                <option value="muscle_gain">💪 근육 증가 & 체체중 증량</option>
+                            </select>
+                        </div>
+
+                        <!-- Breakfast Portion Size -->
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 uppercase mb-2">아침 식사량 선택</label>
+                            <div class="grid grid-cols-2 sm:grid-cols-3 gap-2" id="portionContainer">
+                                <button type="button" data-value="none" class="portion-btn border border-slate-200 hover:border-brand-500 rounded-xl p-2.5 text-center text-xs font-medium transition-all hover:bg-brand-50 flex flex-col items-center gap-1">
+                                    <span class="text-lg">🚫</span>
+                                    <span>안 먹음</span>
+                                    <span class="text-[10px] text-slate-400">(0 kcal)</span>
+                                </button>
+                                <button type="button" data-value="light" class="portion-btn border border-slate-200 hover:border-brand-500 rounded-xl p-2.5 text-center text-xs font-medium transition-all hover:bg-brand-50 flex flex-col items-center gap-1">
+                                    <span class="text-lg">🍎</span>
+                                    <span>가볍게</span>
+                                    <span class="text-[10px] text-slate-400">(~250 kcal)</span>
+                                </button>
+                                <button type="button" data-value="moderate" class="portion-btn border-brand-500 bg-brand-50 text-brand-700 rounded-xl p-2.5 text-center text-xs font-medium transition-all flex flex-col items-center gap-1 ring-2 ring-brand-500/20">
+                                    <span class="text-lg">🥪</span>
+                                    <span>적당히</span>
+                                    <span class="text-[10px] text-slate-500">(~450 kcal)</span>
+                                </button>
+                                <button type="button" data-value="hearty" class="portion-btn border border-slate-200 hover:border-brand-500 rounded-xl p-2.5 text-center text-xs font-medium transition-all hover:bg-brand-50 flex flex-col items-center gap-1">
+                                    <span class="text-lg">🍱</span>
+                                    <span>든든하게</span>
+                                    <span class="text-[10px] text-slate-400">(~650 kcal)</span>
+                                </button>
+                                <button type="button" data-value="heavy" class="portion-btn border border-slate-200 hover:border-brand-500 rounded-xl p-2.5 text-center text-xs font-medium transition-all hover:bg-brand-50 flex flex-col items-center gap-1 col-span-2 sm:col-span-1">
+                                    <span class="text-lg">👑</span>
+                                    <span>과식함</span>
+                                    <span class="text-[10px] text-slate-400">(800+ kcal)</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Menu Input & Quick Select -->
+                        <div>
+                            <div class="flex justify-between items-center mb-2">
+                                <label class="block text-xs font-semibold text-slate-600 uppercase">무엇을 드셨나요?</label>
+                                <span class="text-[11px] text-brand-600 font-medium">빠른 태그 클릭 가능</span>
+                            </div>
+
+                            <!-- Quick Preset Tags -->
+                            <div class="flex flex-wrap gap-1.5 mb-2.5" id="presetTags">
+                                <button type="button" class="preset-tag text-xs bg-slate-100 hover:bg-brand-100 hover:text-brand-700 px-2.5 py-1 rounded-lg text-slate-600 transition" data-menu="사과 1개, 계란 1개">🍎 사과+계란</button>
+                                <button type="button" class="preset-tag text-xs bg-slate-100 hover:bg-brand-100 hover:text-brand-700 px-2.5 py-1 rounded-lg text-slate-600 transition" data-menu="식빵 2장, 우유 1잔">🍞 토스트+우유</button>
+                                <button type="button" class="preset-tag text-xs bg-slate-100 hover:bg-brand-100 hover:text-brand-700 px-2.5 py-1 rounded-lg text-slate-600 transition" data-menu="밥 반공기, 된장찌개, 계란말이">🍚 백반 식사</button>
+                                <button type="button" class="preset-tag text-xs bg-slate-100 hover:bg-brand-100 hover:text-brand-700 px-2.5 py-1 rounded-lg text-slate-600 transition" data-menu="그릭요거트, 견과류, 바나나">🥣 요거트볼</button>
+                                <button type="button" class="preset-tag text-xs bg-slate-100 hover:bg-brand-100 hover:text-brand-700 px-2.5 py-1 rounded-lg text-slate-600 transition" data-menu="단백질 쉐이크">🥤 쉐이크</button>
+                            </div>
+
+                            <textarea id="breakfastItems" rows="3" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 placeholder:text-slate-400" placeholder="드신 음식 목록이나 메뉴를 적어주세요 (예: 현미밥, 계란후라이, 김치, 아메리카노)"></textarea>
+                        </div>
+
+                        <!-- Action Button -->
+                        <button type="submit" class="w-full bg-brand-500 hover:bg-brand-600 text-white font-bold py-3 px-4 rounded-xl shadow-md shadow-brand-200 hover:shadow-lg transition flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-wand-magic-sparkles"></i>
+                            <span>식단 분석 & 오늘 플랜 생성하기</span>
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Right Results Display Area (7 Cols on LG) -->
+            <div class="lg:col-span-7 space-y-6">
+
+                <!-- Alert/Feedback Banner -->
+                <div id="feedbackCard" class="bg-warm-50 border border-warm-100 rounded-2xl p-5 shadow-sm transition-all">
+                    <div class="flex items-start gap-3.5">
+                        <div id="feedbackIcon" class="w-10 h-10 rounded-full bg-warm-500/10 text-warm-500 flex items-center justify-center flex-shrink-0 text-xl font-bold">
+                            💡
+                        </div>
+                        <div class="flex-1">
+                            <h3 id="feedbackTitle" class="font-bold text-slate-800 text-base mb-1">식사 정보를 입력해 주세요</h3>
+                            <p id="feedbackText" class="text-sm text-slate-600 leading-relaxed">
+                                좌측 양식에 오늘 아침 식사 내용을 입력하시면, 권장 칼로리 대비 진단 결과와 함께 "더 드세요 / 덜 드세요" 맞춤 피드백을 보여드립니다.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Nutrition Dashboard -->
+                <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-100 space-y-5">
+                    <div class="flex justify-between items-end border-b border-slate-100 pb-3">
+                        <div>
+                            <span class="text-xs text-slate-400 font-medium">실시간 영양 요약</span>
+                            <h3 class="text-lg font-bold text-slate-800">아침 칼로리 진단</h3>
+                        </div>
+                        <div class="text-right">
+                            <span id="caloriesVal" class="text-2xl font-extrabold text-brand-600">450</span>
+                            <span class="text-xs text-slate-500 font-medium"> / <span id="targetBreakfastCal">500</span> kcal (권장)</span>
+                        </div>
+                    </div>
+
+                    <!-- Progress Bar for Breakfast vs Daily Target -->
+                    <div>
+                        <div class="flex justify-between text-xs text-slate-600 mb-1.5 font-medium">
+                            <span>하루 권장 칼로리 (<span id="dailyTotalTarget">2000</span> kcal) 중 아침 비중</span>
+                            <span id="caloriePercentText" class="text-brand-600 font-bold">22.5%</span>
+                        </div>
+                        <div class="w-full bg-slate-100 h-3 rounded-full overflow-hidden p-0.5">
+                            <div id="calorieProgressBar" class="bg-brand-500 h-full rounded-full progress-bar-transition" style="width: 22.5%;"></div>
+                        </div>
+                    </div>
+
+                    <!-- Macronutrient Cards Grid -->
+                    <div class="grid grid-cols-3 gap-3 pt-2">
+                        <div class="bg-slate-50 p-3 rounded-xl border border-slate-100 text-center">
+                            <span class="block text-[11px] text-slate-400 font-medium mb-1">탄수화물</span>
+                            <span id="carbsVal" class="text-base font-bold text-slate-700">60g</span>
+                        </div>
+                        <div class="bg-slate-50 p-3 rounded-xl border border-slate-100 text-center">
+                            <span class="block text-[11px] text-slate-400 font-medium mb-1">단백질</span>
+                            <span id="proteinVal" class="text-base font-bold text-slate-700">20g</span>
+                        </div>
+                        <div class="bg-slate-50 p-3 rounded-xl border border-slate-100 text-center">
+                            <span class="block text-[11px] text-slate-400 font-medium mb-1">지방</span>
+                            <span id="fatVal" class="text-base font-bold text-slate-700">14g</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Custom Meal Plan Recommendations -->
+                <div class="space-y-4">
+                    <h3 class="text-base font-bold text-slate-800 flex items-center gap-2">
+                        <i class="fa-solid fa-utensils text-brand-600"></i> 아침을 고려한 오늘 맞춤 추천 식단
+                    </h3>
+
+                    <!-- Lunch & Dinner Cards Grid -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <!-- Lunch Card -->
+                        <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-100 flex flex-col justify-between">
+                            <div>
+                                <div class="flex justify-between items-center mb-2">
+                                    <span class="text-xs font-bold px-2.5 py-0.5 bg-amber-100 text-amber-800 rounded-full">☀️ 점심 추천</span>
+                                    <span id="lunchCalorieTag" class="text-xs font-semibold text-slate-500">약 650 kcal</span>
+                                </div>
+                                <h4 id="lunchTitle" class="font-bold text-slate-800 text-sm mb-1.5">현미 닭가슴살 볶음밥</h4>
+                                <p id="lunchDesc" class="text-xs text-slate-500 leading-relaxed mb-3">
+                                    아침 식사량을 반영하여 균형 잡힌 탄수화물과 단백질을 공급합니다.
+                                </p>
+                            </div>
+                            <div class="text-[11px] text-brand-700 font-medium bg-brand-50 p-2 rounded-lg" id="lunchTip">
+                                💡 Tip: 채소 샐러드를 먼저 섭취해 혈당을 관리해보세요.
+                            </div>
+                        </div>
+
+                        <!-- Dinner Card -->
+                        <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-100 flex flex-col justify-between">
+                            <div>
+                                <div class="flex justify-between items-center mb-2">
+                                    <span class="text-xs font-bold px-2.5 py-0.5 bg-indigo-100 text-indigo-800 rounded-full">🌙 저녁 추천</span>
+                                    <span id="dinnerCalorieTag" class="text-xs font-semibold text-slate-500">약 500 kcal</span>
+                                </div>
+                                <h4 id="dinnerTitle" class="font-bold text-slate-800 text-sm mb-1.5">연어 구이 & 연두부 샐러드</h4>
+                                <p id="dinnerDesc" class="text-xs text-slate-500 leading-relaxed mb-3">
+                                    저녁은 소화가 잘 되고 부담이 적은 고단백 저탄수화물 위주로 구성했습니다.
+                                </p>
+                            </div>
+                            <div class="text-[11px] text-brand-700 font-medium bg-brand-50 p-2 rounded-lg" id="dinnerTip">
+                                💡 Tip: 수면 3시간 전 식사를 마치는 것을 추천합니다.
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Healthy Snack Card -->
+                    <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-100 flex items-center gap-4">
+                        <div class="w-12 h-12 rounded-xl bg-emerald-100 text-emerald-600 flex items-center justify-center text-xl flex-shrink-0">
+                            🥑
+                        </div>
+                        <div class="flex-1">
+                            <div class="flex justify-between items-center">
+                                <span class="text-xs font-bold text-slate-700">추천 간식 타임</span>
+                                <span id="snackCalorieTag" class="text-xs font-semibold text-slate-400">약 150 kcal</span>
+                            </div>
+                            <p id="snackDesc" class="text-xs text-slate-600 mt-1">
+                                아몬드 한 주먹 (10~15알) 또는 플레인 요거트 1개
+                            </p>
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-slate-200 mt-12 py-6 text-center text-xs text-slate-400">
+        <div class="max-w-4xl mx-auto px-4">
+            <p>© 2026 MorningBalance. 개인 맞춤형 아침 식단 가이드 서비스</p>
+            <p class="mt-1">제공되는 칼로리 및 영양정보는 입력값을 기반으로 한 추정치이며, 개인의 체질과 활동량에 따라 차이가 있을 수 있습니다.</p>
+        </div>
+    </footer>
+
+    <!-- Interactive Script -->
+    <script>
+        // State management
+        let selectedPortion = 'moderate';
+
+        // Portion estimates base table
+        const portionData = {
+            none: { cal: 0, carbs: 0, protein: 0, fat: 0 },
+            light: { cal: 220, carbs: 32, protein: 8, fat: 5 },
+            moderate: { cal: 450, carbs: 62, protein: 18, fat: 12 },
+            hearty: { cal: 680, carbs: 90, protein: 28, fat: 20 },
+            heavy: { cal: 880, carbs: 120, protein: 35, fat: 30 }
+        };
+
+        // DOM Elements
+        const portionBtns = document.querySelectorAll('.portion-btn');
+        const presetTags = document.querySelectorAll('.preset-tag');
+        const breakfastInput = document.getElementById('breakfastItems');
+        const dietForm = document.getElementById('dietForm');
+        const userGoalSelect = document.getElementById('userGoal');
+
+        // Target elements
+        const caloriesVal = document.getElementById('caloriesVal');
+        const carbsVal = document.getElementById('carbsVal');
+        const proteinVal = document.getElementById('proteinVal');
+        const fatVal = document.getElementById('fatVal');
+        const targetBreakfastCal = document.getElementById('targetBreakfastCal');
+        const dailyTotalTarget = document.getElementById('dailyTotalTarget');
+        const caloriePercentText = document.getElementById('caloriePercentText');
+        const calorieProgressBar = document.getElementById('calorieProgressBar');
+
+        // Feedback Banner Elements
+        const feedbackCard = document.getElementById('feedbackCard');
+        const feedbackTitle = document.getElementById('feedbackTitle');
+        const feedbackText = document.getElementById('feedbackText');
+        const feedbackIcon = document.getElementById('feedbackIcon');
+
+        // Recommendation Elements
+        const lunchTitle = document.getElementById('lunchTitle');
+        const lunchDesc = document.getElementById('lunchDesc');
+        const lunchCalorieTag = document.getElementById('lunchCalorieTag');
+        const lunchTip = document.getElementById('lunchTip');
+
+        const dinnerTitle = document.getElementById('dinnerTitle');
+        const dinnerDesc = document.getElementById('dinnerDesc');
+        const dinnerCalorieTag = document.getElementById('dinnerCalorieTag');
+        const dinnerTip = document.getElementById('dinnerTip');
+
+        const snackDesc = document.getElementById('snackDesc');
+        const snackCalorieTag = document.getElementById('snackCalorieTag');
+
+        // Initialize UI Events
+        document.addEventListener('DOMContentLoaded', () => {
+            portionBtns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    portionBtns.forEach(b => {
+                        b.classList.remove('border-brand-500', 'bg-brand-50', 'text-brand-700', 'ring-2', 'ring-brand-500/20');
+                        b.classList.add('border-slate-200');
+                    });
+                    btn.classList.remove('border-slate-200');
+                    btn.classList.add('border-brand-500', 'bg-brand-50', 'text-brand-700', 'ring-2', 'ring-brand-500/20');
+                    selectedPortion = btn.getAttribute('data-value');
+                    
+                    if (selectedPortion === 'none') {
+                        breakfastInput.value = '아침을 먹지 않음';
+                    } else if (breakfastInput.value === '아침을 먹지 않음') {
+                        breakfastInput.value = '';
+                    }
+
+                    updateAnalysis();
+                });
+            });
+
+            presetTags.forEach(tag => {
+                tag.addEventListener('click', () => {
+                    const menuText = tag.getAttribute('data-menu');
+                    if (breakfastInput.value && breakfastInput.value !== '아침을 먹지 않음') {
+                        breakfastInput.value += `, ${menuText}`;
+                    } else {
+                        breakfastInput.value = menuText;
+                    }
+                    if (selectedPortion === 'none') {
+                        portionBtns[2].click();
+                    } else {
+                        updateAnalysis();
+                    }
+                });
+            });
+
+            userGoalSelect.addEventListener('change', updateAnalysis);
+
+            breakfastInput.addEventListener('input', () => {
+                if (breakfastInput.value.trim().length > 0 && selectedPortion === 'none') {
+                    portionBtns[1].click();
+                }
+            });
+
+            dietForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                updateAnalysis();
+                showToast("오늘의 맞춤 식단 분석이 완료되었습니다!");
+            });
+
+            updateAnalysis();
+        });
+
+        // Main Calculation and UI Updates Logic
+        function updateAnalysis() {
+            const goal = userGoalSelect.value;
+            let targetDaily = 2000;
+
+            if (goal === 'weight_loss') targetDaily = 1600;
+            if (goal === 'muscle_gain') targetDaily = 2400;
+
+            const targetBreakfast = Math.round(targetDaily * 0.25); // Target breakfast is ~25%
+
+            let base = { ...portionData[selectedPortion] };
+
+            const inputText = breakfastInput.value.trim();
+            if (inputText.length > 0 && selectedPortion !== 'none') {
+                const count = inputText.split(/[,+\n]/).length;
+                if (count > 3 && selectedPortion !== 'heavy') {
+                    base.cal += 50;
+                    base.carbs += 8;
+                }
+            }
+
+            const percentage = ((base.cal / targetDaily) * 100).toFixed(1);
+
+            caloriesVal.textContent = base.cal;
+            carbsVal.textContent = `${base.carbs}g`;
+            proteinVal.textContent = `${base.protein}g`;
+            fatVal.textContent = `${base.fat}g`;
+
+            targetBreakfastCal.textContent = targetBreakfast;
+            dailyTotalTarget.textContent = targetDaily;
+            caloriePercentText.textContent = `${percentage}%`;
+            
+            const progressWidth = Math.min(percentage, 100);
+            calorieProgressBar.style.width = `${progressWidth}%`;
+
+            if (base.cal > targetBreakfast + 80) {
+                calorieProgressBar.className = "bg-amber-500 h-full rounded-full progress-bar-transition";
+            } else if (base.cal < targetBreakfast - 80) {
+                calorieProgressBar.className = "bg-rose-400 h-full rounded-full progress-bar-transition";
+            } else {
+                calorieProgressBar.className = "bg-brand-500 h-full rounded-full progress-bar-transition";
+            }
+
+            generateFeedbackAndPlan(base.cal, targetBreakfast, targetDaily);
+        }
+
+        // Logic for Conditional Feedback Banner & Specific Recommendations
+        function generateFeedbackAndPlan(cal, targetBreakfast, targetDaily) {
+            let title = "";
+            let text = "";
+            let icon = "💡";
+            let styleClass = "";
+
+            const calDiff = cal - targetBreakfast;
+
+            // 조건: 예상보다 높을 때 / 적을 때 / 적정일 때
+            if (calDiff > 80) {
+                // 예상보다 높은 경우 -> 덜 먹으세요 가이드
+                icon = "⚠️";
+                title = "아침 칼로리가 예상보다 높습니다! 오늘 남은 식사는 덜 드세요.";
+                text = `권장 아침 칼로리(${targetBreakfast} kcal)보다 약 ${calDiff} kcal 높게 섭취하셨습니다. 점심과 저녁은 칼로리가 낮고 단백질과 식이섬유가 풍부한 가벼운 식단으로 조절해 주세요.`;
+                styleClass = "bg-amber-50 border-amber-200 text-amber-900";
+
+                const remainingCal = targetDaily - cal;
+                const lunchTargetCal = Math.round(remainingCal * 0.38);
+                const dinnerTargetCal = Math.round(remainingCal * 0.35);
+
+                lunchTitle.textContent = "닭가슴살 리코타 샐러드 & 통밀빵 1조각";
+                lunchDesc.textContent = "아침 칼로리 초과분을 고려하여, 점심은 부담 없는 고단백 클린 샐러드로 준비해 보세요.";
+                lunchCalorieTag.textContent = `약 ${lunchTargetCal} kcal (절감 추천)`;
+                lunchTip.textContent = "💡 Tip: 드레싱은 발사믹 소스를 살짝만 곁들여 칼로리를 낮추세요.";
+
+                dinnerTitle.textContent = "연두부 샐러드 & 구운 야채 버섯 구이";
+                dinnerDesc.textContent = "저녁은 소화가 빠른 식물성 단백질 위주로 가볍게 가다듬어 하루 전체 칼로리 균형을 맞춥니다.";
+                dinnerCalorieTag.textContent = `약 ${dinnerTargetCal} kcal (절감 추천)`;
+                dinnerTip.textContent = "💡 Tip: 취침 4시간 전 식사를 마무리하면 지방 축적을 막을 수 있습니다.";
+
+                snackDesc.textContent = "간식은 가급적 생략하시거나, 따뜻한 허브티/녹차 한 잔을 추천합니다.";
+                snackCalorieTag.textContent = "0 kcal";
+
+            } else if (calDiff < -80) {
+                // 예상보다 적은 경우 -> 더 먹으세요 가이드
+                icon = "📢";
+                title = "아침 칼로리가 예상보다 적습니다! 오늘 남은 식사는 더 든든히 드세요.";
+                text = `권장 아침 칼로리(${targetBreakfast} kcal)보다 약 ${Math.abs(calDiff)} kcal 적게 섭취하셨습니다. 에너지 부족이나 허기짐으로 인한 폭식을 방지하기 위해 점심과 저녁에 영양을 충분히 보충하세요!`;
+                styleClass = "bg-sky-50 border-sky-200 text-sky-900";
+
+                const remainingCal = targetDaily - cal;
+                const lunchTargetCal = Math.round(remainingCal * 0.45);
+                const dinnerTargetCal = Math.round(remainingCal * 0.40);
+
+                lunchTitle.textContent = "소고기 덮밥 (또는 든든한 한식 백반)";
+                lunchDesc.textContent = "아침 부족분을 채우기 위해 충분한 탄수화물과 단백질을 고루 갖춘 영양 균형 식단입니다.";
+                lunchCalorieTag.textContent = `약 ${lunchTargetCal} kcal (보충 추천)`;
+                lunchTip.textContent = "💡 Tip: 밥량은 단백질 반찬과 함께 든든히 드셔도 충분합니다.";
+
+                dinnerTitle.textContent = "연어 구이 & 현미밥 식단";
+                dinnerDesc.textContent = "지방과 단백질 밸런스가 좋은 연어로 에너지를 든든하게 채우고 오메가3 영양까지 더합니다.";
+                dinnerCalorieTag.textContent = `약 ${dinnerTargetCal} kcal (보충 추천)`;
+                dinnerTip.textContent = "💡 Tip: 식사 후 간단한 과일 한 조각으로 상큼하게 마무리해보세요.";
+
+                snackDesc.textContent = "오후 3~4시 경: 바나나 1개 + 견과류 한 주먹 (약 150 kcal)";
+                snackCalorieTag.textContent = "약 150 kcal";
+
+            } else {
+                // 적정한 경우
+                icon = "✨";
+                title = "아주 이상적인 아침 식사입니다! 현재 밸런스를 유지해보세요.";
+                text = `목표 아침 권장 칼로리(${targetBreakfast} kcal)에 딱 맞게 잘 섭취하셨습니다. 규칙적인 식습관으로 오전을 활기차게 유지하세요!`;
+                styleClass = "bg-emerald-50 border-emerald-200 text-emerald-900";
+
+                const remainingCal = targetDaily - cal;
+                const lunchTargetCal = Math.round(remainingCal * 0.42);
+                const dinnerTargetCal = Math.round(remainingCal * 0.38);
+
+                lunchTitle.textContent = "현미 닭가슴살 포케 / 볶음밥";
+                lunchDesc.textContent = "오후 업무와 활동에 필요한 완벽한 복합 탄수화물과 단백질 밸런스 식단입니다.";
+                lunchCalorieTag.textContent = `약 ${lunchTargetCal} kcal`;
+                lunchTip.textContent = "💡 Tip: 식사 후 15분 산책으로 혈당 조절에 도움을 주세요.";
+
+                dinnerTitle.textContent = "두부 버섯 전골 또는 닭가슴살 구이";
+                dinnerDesc.textContent = "저녁은 속이 편안하고 야간 수면에 방해되지 않는 고단백 채소 위주 식단입니다.";
+                dinnerCalorieTag.textContent = `약 ${dinnerTargetCal} kcal`;
+                dinnerTip.textContent = "💡 Tip: 식사 후 따뜻한 물이나 허브티를 섭취하세요.";
+
+                snackDesc.textContent = "하루 한 주먹 견과류 또는 무설탕 두유 1팩";
+                snackCalorieTag.textContent = "약 120 kcal";
+            }
+
+            feedbackCard.className = `rounded-2xl p-5 shadow-sm border transition-all ${styleClass}`;
+            feedbackIcon.textContent = icon;
+            feedbackTitle.textContent = title;
+            feedbackText.textContent = text;
+        }
+
+        // Simple Toast Notification Helper
+        function showToast(message) {
+            const toast = document.createElement('div');
+            toast.className = 'fixed bottom-5 right-5 bg-slate-800 text-white px-4 py-3 rounded-xl shadow-xl text-xs flex items-center gap-2 z-50 transition-all duration-300 transform translate-y-10 opacity-0';
+            toast.innerHTML = `<i class="fa-solid fa-circle-check text-brand-500 text-sm"></i> <span>${message}</span>`;
+            document.body.appendChild(toast);
+
+            setTimeout(() => {
+                toast.classList.remove('translate-y-10', 'opacity-0');
+            }, 10);
+
+            setTimeout(() => {
+                toast.classList.add('translate-y-10', 'opacity-0');
+                setTimeout(() => toast.remove(), 300);
+            }, 2500);
+        }
+    </script>
+</body>
+</html>
