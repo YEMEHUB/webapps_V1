@@ -1,1 +1,775 @@
 
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MorningFuel - 청소년 맞춤 아침 식단 플래너</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Font Inter & Noto Sans KR -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+            background-color: #F8FAFC;
+            color: #1E293B;
+        }
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #F1F5F9;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #CBD5E1;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94A3B8;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+    <!-- Navigation Bar -->
+    <header class="bg-white border-b border-slate-200 sticky top-0 z-30">
+        <div class="max-w-6xl mx-auto px-4 py-3 flex justify-between items-center">
+            <div class="flex items-center space-x-2">
+                <div class="bg-amber-500 text-white p-2 rounded-xl">
+                    <i data-lucide="sun" class="w-6 h-6"></i>
+                </div>
+                <div>
+                    <h1 class="font-bold text-xl text-slate-800 tracking-tight">MorningFuel</h1>
+                    <p class="text-xs text-slate-500">청소년 성장 아침식단 플래너</p>
+                </div>
+            </div>
+            <button onclick="scrollToInput()" class="text-xs sm:text-sm font-medium bg-amber-50 hover:bg-amber-100 text-amber-700 px-3 py-1.5 rounded-lg transition-colors flex items-center space-x-1">
+                <i data-lucide="edit-3" class="w-4 h-4"></i>
+                <span>정보 다시 입력</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Content Layout -->
+    <main class="flex-1 max-w-6xl w-full mx-auto px-4 py-8 space-y-8">
+        
+        <!-- Intro Hero Banner -->
+        <section class="bg-gradient-to-r from-amber-500 to-orange-500 text-white rounded-2xl p-6 sm:p-8 shadow-sm">
+            <div class="max-w-2xl space-y-3">
+                <span class="inline-block bg-white/20 text-white text-xs font-semibold px-3 py-1 rounded-full backdrop-blur-sm">
+                    아침 결식 예방 프로젝트 🍳
+                </span>
+                <h2 class="text-2xl sm:text-3xl font-bold leading-tight">
+                    아침 한 끼가 여러분의 키와 집중력을 바꿉니다
+                </h2>
+                <p class="text-amber-100 text-sm sm:text-base leading-relaxed">
+                    바쁜 아침 시간에도 부담 없이 먹을 수 있는 영양 만점 식단을 계산해 드릴게요. 내 몸에 맞는 정확한 탄단지 성분과 12가지 간단한 레시피를 확인해 보세요!
+                </p>
+            </div>
+        </section>
+
+        <!-- User Data Input Form Section -->
+        <section id="input-section" class="bg-white rounded-2xl border border-slate-200 p-6 sm:p-8 shadow-sm transition-all">
+            <div class="flex items-center space-x-2 border-b border-slate-100 pb-4 mb-6">
+                <i data-lucide="user-check" class="w-6 h-6 text-amber-500"></i>
+                <h3 class="text-lg font-bold text-slate-800">나의 신체 및 목표 정보 입력</h3>
+            </div>
+
+            <form id="calc-form" onsubmit="calculateNutrition(event)" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+                <!-- Age -->
+                <div>
+                    <label class="block text-sm font-medium text-slate-700 mb-1">나이 (세)</label>
+                    <div class="relative">
+                        <input type="number" id="age" min="10" max="19" value="15" required
+                            class="w-full pl-4 pr-10 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-amber-500 focus:border-transparent outline-none transition-all">
+                        <span class="absolute right-3 top-3 text-xs text-slate-400">세</span>
+                    </div>
+                </div>
+
+                <!-- Gender -->
+                <div>
+                    <label class="block text-sm font-medium text-slate-700 mb-1">성별</label>
+                    <div class="grid grid-cols-2 gap-2">
+                        <label class="cursor-pointer">
+                            <input type="radio" name="gender" value="male" checked class="peer hidden">
+                            <div class="py-2.5 text-center text-sm font-medium rounded-xl border border-slate-200 bg-slate-50 peer-checked:bg-amber-500 peer-checked:text-white peer-checked:border-amber-500 transition-all">
+                                남성
+                            </div>
+                        </label>
+                        <label class="cursor-pointer">
+                            <input type="radio" name="gender" value="female" class="peer hidden">
+                            <div class="py-2.5 text-center text-sm font-medium rounded-xl border border-slate-200 bg-slate-50 peer-checked:bg-amber-500 peer-checked:text-white peer-checked:border-amber-500 transition-all">
+                                여성
+                            </div>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Current Height -->
+                <div>
+                    <label class="block text-sm font-medium text-slate-700 mb-1">현재 키 (cm)</label>
+                    <div class="relative">
+                        <input type="number" id="height" min="120" max="210" value="163" step="0.1" required
+                            class="w-full pl-4 pr-10 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-amber-500 focus:border-transparent outline-none transition-all">
+                        <span class="absolute right-3 top-3 text-xs text-slate-400">cm</span>
+                    </div>
+                </div>
+
+                <!-- Weight -->
+                <div>
+                    <label class="block text-sm font-medium text-slate-700 mb-1">현재 몸무게 (kg)</label>
+                    <div class="relative">
+                        <input type="number" id="weight" min="30" max="150" value="54" step="0.1" required
+                            class="w-full pl-4 pr-10 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-amber-500 focus:border-transparent outline-none transition-all">
+                        <span class="absolute right-3 top-3 text-xs text-slate-400">kg</span>
+                    </div>
+                </div>
+
+                <!-- Target Height -->
+                <div>
+                    <label class="block text-sm font-medium text-slate-700 mb-1">목표 키 (cm)</label>
+                    <div class="relative">
+                        <input type="number" id="target-height" min="120" max="210" value="175" step="0.1" required
+                            class="w-full pl-4 pr-10 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-amber-500 focus:border-transparent outline-none transition-all">
+                        <span class="absolute right-3 top-3 text-xs text-slate-400">cm</span>
+                    </div>
+                </div>
+
+                <!-- Activity Level -->
+                <div>
+                    <label class="block text-sm font-medium text-slate-700 mb-1">평소 운동량 및 활동량</label>
+                    <select id="activity" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-amber-500 focus:border-transparent outline-none transition-all text-sm">
+                        <option value="1.2">적음 (주로 앉아서 생활, 체육시간 외 운동 안함)</option>
+                        <option value="1.375" selected>보통 (주 1~3회 가벼운 운동/학원 이동)</option>
+                        <option value="1.55">활동적 (주 4~5회 체육/스포츠 동아리)</option>
+                        <option value="1.725">매우 활동적 (매일 강도 높은 운동/선수 활동)</option>
+                    </select>
+                </div>
+
+                <!-- Submit Button -->
+                <div class="md:col-span-2 lg:col-span-3 pt-2">
+                    <button type="submit" class="w-full bg-slate-900 hover:bg-slate-800 text-white font-medium py-3 rounded-xl transition-colors flex items-center justify-center space-x-2 shadow-sm">
+                        <i data-lucide="calculator" class="w-5 h-5 text-amber-400"></i>
+                        <span>영양 성분 및 추천 식단 계산하기</span>
+                    </button>
+                </div>
+            </form>
+        </section>
+
+        <!-- Height Gap Notice Banner (Dynamically Shown) -->
+        <div id="height-notice" class="hidden bg-amber-50 border border-amber-200 rounded-2xl p-5 sm:p-6 text-amber-900 flex items-start space-x-4 shadow-sm animate-fade-in">
+            <div class="bg-amber-500 text-white p-2.5 rounded-xl shrink-0 mt-0.5">
+                <i data-lucide="sparkles" class="w-6 h-6"></i>
+            </div>
+            <div class="space-y-1.5 flex-1">
+                <div class="flex items-center space-x-2">
+                    <h4 class="font-bold text-base text-amber-950">성장 골든타임! 아침 식사를 꼭 챙겨주세요 📈</h4>
+                    <span id="gap-badge" class="bg-amber-200 text-amber-900 text-xs px-2.5 py-0.5 rounded-full font-bold">목표차이: 0cm</span>
+                </div>
+                <p class="text-sm text-amber-800 leading-relaxed">
+                    목표 키까지 <strong id="height-diff-text" class="text-amber-950 underline decoration-amber-400 underline-offset-2">10cm 이상</strong>의 차이가 있습니다! 
+                    청소년기 성장호르몬은 수면 중 분비되지만, <strong>아침에 탄수화물과 단백질을 보충해 주지 않으면 몸이 단백질을 에너지로 태워 키 성장이 저하</strong>될 수 있습니다. 
+                    하루 성장에 필요한 열량의 25~30%는 아침밥으로 채워주는 것이 핵심입니다.
+                </p>
+            </div>
+        </div>
+
+        <!-- Nutrition Results Dashboard -->
+        <section id="result-section" class="space-y-6">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-200 pb-4">
+                <div>
+                    <h3 class="text-xl font-bold text-slate-800">나의 일일 & 아침 권장 영양 가이드</h3>
+                    <p class="text-xs text-slate-500">입력된 신체 지수 기반 계산 결과 (단백질 · 탄수화물 · 칼로리)</p>
+                </div>
+                <span class="text-xs bg-slate-100 text-slate-600 px-3 py-1 rounded-full self-start sm:self-auto font-medium">
+                    아침 권장 비율: 일일 영양의 약 25~30%
+                </span>
+            </div>
+
+            <!-- Key Metrics Grid -->
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                
+                <!-- 1. Calories Card -->
+                <div class="bg-white border border-slate-200 p-5 rounded-2xl shadow-sm flex flex-col justify-between space-y-3">
+                    <div class="flex justify-between items-center">
+                        <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider">하루 필요 칼로리</span>
+                        <div class="p-2 bg-orange-50 text-orange-500 rounded-lg">
+                            <i data-lucide="flame" class="w-5 h-5"></i>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="flex items-baseline space-x-1">
+                            <span id="res-kcal" class="text-3xl font-extrabold text-slate-800">2,100</span>
+                            <span class="text-sm font-medium text-slate-500">kcal</span>
+                        </div>
+                        <p class="text-xs text-orange-600 font-medium mt-1">
+                            아침 권장: <span id="res-breakfast-kcal" class="font-bold">525~630</span> kcal
+                        </p>
+                    </div>
+                    <!-- Progress Bar -->
+                    <div class="w-full bg-slate-100 rounded-full h-2">
+                        <div class="bg-orange-500 h-2 rounded-full" style="width: 100%"></div>
+                    </div>
+                </div>
+
+                <!-- 2. Protein Card -->
+                <div class="bg-white border border-slate-200 p-5 rounded-2xl shadow-sm flex flex-col justify-between space-y-3">
+                    <div class="flex justify-between items-center">
+                        <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider">1 필수 단백질</span>
+                        <div class="p-2 bg-blue-50 text-blue-500 rounded-lg">
+                            <i data-lucide="beef" class="w-5 h-5"></i>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="flex items-baseline space-x-1">
+                            <span id="res-protein" class="text-3xl font-extrabold text-slate-800">75</span>
+                            <span class="text-sm font-medium text-slate-500">g</span>
+                        </div>
+                        <p class="text-xs text-blue-600 font-medium mt-1">
+                            아침 권장: <span id="res-breakfast-protein" class="font-bold">20~25</span> g
+                        </p>
+                    </div>
+                    <div class="w-full bg-slate-100 rounded-full h-2">
+                        <div class="bg-blue-500 h-2 rounded-full" style="width: 25%"></div>
+                    </div>
+                </div>
+
+                <!-- 3. Carbs Card -->
+                <div class="bg-white border border-slate-200 p-5 rounded-2xl shadow-sm flex flex-col justify-between space-y-3">
+                    <div class="flex justify-between items-center">
+                        <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider">2 에너지 탄수화물</span>
+                        <div class="p-2 bg-emerald-50 text-emerald-500 rounded-lg">
+                            <i data-lucide="wheat" class="w-5 h-5"></i>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="flex items-baseline space-x-1">
+                            <span id="res-carbs" class="text-3xl font-extrabold text-slate-800">280</span>
+                            <span class="text-sm font-medium text-slate-500">g</span>
+                        </div>
+                        <p class="text-xs text-emerald-600 font-medium mt-1">
+                            아침 권장: <span id="res-breakfast-carbs" class="font-bold">70~84</span> g
+                        </p>
+                    </div>
+                    <div class="w-full bg-slate-100 rounded-full h-2">
+                        <div class="bg-emerald-500 h-2 rounded-full" style="width: 55%"></div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- 12 Breakfast Recipes List Section -->
+        <section class="space-y-6 pt-4">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 pb-4">
+                <div>
+                    <h3 class="text-xl font-bold text-slate-800 flex items-center gap-2">
+                        <span>청소년 추천 아침 레시피 12선</span>
+                        <span class="text-xs bg-amber-100 text-amber-800 font-bold px-2 py-0.5 rounded-full">총 12가지</span>
+                    </h3>
+                    <p class="text-xs text-slate-500 mt-0.5">조리하기 쉽고 영양이 풍부한 든든한 아침 메뉴 모음</p>
+                </div>
+
+                <!-- Category Filters -->
+                <div class="flex flex-wrap gap-1.5" id="filter-buttons">
+                    <button onclick="filterRecipes('all')" class="filter-btn active text-xs font-medium px-3 py-1.5 rounded-lg bg-slate-900 text-white transition-all">전체보기</button>
+                    <button onclick="filterRecipes('quick')" class="filter-btn text-xs font-medium px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 transition-all">⚡ 5분 초간단</button>
+                    <button onclick="filterRecipes('high-protein')" class="filter-btn text-xs font-medium px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 transition-all">💪 고단백</button>
+                    <button onclick="filterRecipes('balanced')" class="filter-btn text-xs font-medium px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 transition-all">🥗 균형 든든</button>
+                </div>
+            </div>
+
+            <!-- Recipe Grid (12 items) -->
+            <div id="recipe-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Javascript will inject 12 recipe cards here -->
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Recipe Detail Modal -->
+    <div id="recipe-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-lg w-full p-6 space-y-5 shadow-xl max-h-[90vh] overflow-y-auto relative animate-fade-in">
+            <button onclick="closeModal()" class="absolute right-4 top-4 p-1.5 text-slate-400 hover:text-slate-600 rounded-lg hover:bg-slate-100 transition-colors">
+                <i data-lucide="x" class="w-5 h-5"></i>
+            </button>
+            
+            <div class="space-y-2">
+                <span id="modal-category" class="text-xs font-bold text-amber-600 bg-amber-50 px-2.5 py-1 rounded-full">카테고리</span>
+                <h3 id="modal-title" class="text-xl font-bold text-slate-800">레시피 이름</h3>
+                <p id="modal-desc" class="text-xs text-slate-500">레시피 설명이 들어가는 위치입니다.</p>
+            </div>
+
+            <!-- Modal Nutrition Badges -->
+            <div class="grid grid-cols-3 gap-2 bg-slate-50 p-3 rounded-xl text-center text-xs">
+                <div>
+                    <span class="text-slate-400 block text-[10px]">칼로리</span>
+                    <span id="modal-kcal" class="font-bold text-slate-700">0 kcal</span>
+                </div>
+                <div>
+                    <span class="text-slate-400 block text-[10px]">1 단백질</span>
+                    <span id="modal-protein" class="font-bold text-blue-600">0g</span>
+                </div>
+                <div>
+                    <span class="text-slate-400 block text-[10px]">2 탄수화물</span>
+                    <span id="modal-carbs" class="font-bold text-emerald-600">0g</span>
+                </div>
+            </div>
+
+            <!-- Ingredients -->
+            <div>
+                <h4 class="text-sm font-bold text-slate-800 mb-2 flex items-center gap-1">
+                    <i data-lucide="shopping-bag" class="w-4 h-4 text-amber-500"></i> 필요 재료
+                </h4>
+                <ul id="modal-ingredients" class="list-disc list-inside text-xs text-slate-600 space-y-1 bg-slate-50 p-3 rounded-xl">
+                </ul>
+            </div>
+
+            <!-- Cooking Steps -->
+            <div>
+                <h4 class="text-sm font-bold text-slate-800 mb-2 flex items-center gap-1">
+                    <i data-lucide="chef-hat" class="w-4 h-4 text-amber-500"></i> 조리 순서
+                </h4>
+                <ol id="modal-steps" class="list-decimal list-inside text-xs text-slate-600 space-y-2">
+                </ol>
+            </div>
+
+            <button onclick="closeModal()" class="w-full bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium py-2.5 rounded-xl transition-colors text-sm">
+                닫기
+            </button>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-slate-200 py-6 mt-12">
+        <div class="max-w-6xl mx-auto px-4 text-center text-xs text-slate-400 space-y-1">
+            <p><strong>MorningFuel</strong> - 청소년 아침결식 예방 & 성장 가이드 웹앱</p>
+            <p>본 서비스에서 제공하는 영양 정보는 청소년 표준 성장 권장 기준을 따르며, 개별 건강 상태에 맞춰 조절할 수 있습니다.</p>
+        </div>
+    </footer>
+
+    <!-- JavaScript Application Logic -->
+    <script>
+        // 12 Types of Youth Breakfast Recipes Database
+        const recipes = [
+            {
+                id: 1,
+                title: "계란 컵밥 & 참치 마요",
+                category: "quick",
+                categoryName: "⚡ 5분 초간단",
+                time: "5분",
+                difficulty: "쉬움",
+                kcal: 480,
+                protein: 22,
+                carbs: 62,
+                image: "🍳",
+                desc: "전자레인지로 3분 만에 완성하는 바쁜 아침 최적의 고단백 컵밥입니다.",
+                ingredients: ["밥 1공기 (150g)", "계란 1개", "기름 뺀 참치캔 1/2개", "기름 소량", "간장 0.5큰술", "마요네즈 0.5큰술"],
+                steps: [
+                    "전자레인지용 용기에 밥과 참치를 올립니다.",
+                    "계란을 깨 넣고 포크로 노른자를 터뜨려 줍니다.",
+                    "랩을 씌우고 전자레인지에 2분간 돌립니다.",
+                    "간장과 마요네즈를 넣어 쓱쓱 비벼 먹습니다."
+                ]
+            },
+            {
+                id: 2,
+                title: "그릭요거트 그래놀라 볼",
+                category: "high-protein",
+                categoryName: "💪 고단백",
+                time: "3분",
+                difficulty: "매우 쉬움",
+                kcal: 380,
+                protein: 20,
+                carbs: 45,
+                image: "🥣",
+                desc: "장 건강과 단백질 보충을 동시에 해결하는 청량한 오전에 어울리는 요거트 볼입니다.",
+                ingredients: ["무당 그릭요거트 150g", "통곡물 그래놀라 40g", "바나나 1/2개", "꿀 또는 알룰로스 1스푼", "블루베리 한 움큼"],
+                steps: [
+                    "볼 그릇에 그릭요거트를 넉넉히 담습니다.",
+                    "바나나를 먹기 좋은 크기로 슬라이스합니다.",
+                    "그래놀라, 바나나, 블루베리를 위에 고루 올립니다.",
+                    "꿀을 가볍게 뿌려 완성합니다."
+                ]
+            },
+            {
+                id: 3,
+                title: "통밀 치즈 계란 토스트",
+                category: "balanced",
+                categoryName: "🥗 균형 든든",
+                time: "8분",
+                difficulty: "쉬움",
+                kcal: 420,
+                protein: 19,
+                carbs: 50,
+                image: "🍞",
+                desc: "복합 탄수화물 통밀식빵과 단백질이 풍부한 계란, 치즈의 클래식한 조화입니다.",
+                ingredients: ["통밀 식빵 2장", "계란 1개", "체다 슬라이스 치즈 1장", "우유 2스푼", "버터 약간"],
+                steps: [
+                    "계란과 우유를 잘 섞어 계란물 생성을 해줍니다.",
+                    "팬에 버터를 녹인 후 식빵을 계란물에 적셔 노릇하게 구워냅니다.",
+                    "따뜻할 때 식빵 사이에 치즈를 넣어 자연스럽게 녹입니다."
+                ]
+            },
+            {
+                id: 4,
+                title: "바나나 프로틴 오트밀죽",
+                category: "high-protein",
+                categoryName: "💪 고단백",
+                time: "6분",
+                difficulty: "쉬움",
+                kcal: 450,
+                protein: 24,
+                carbs: 65,
+                image: "🍌",
+                desc: "따뜻하게 위를 보호해 주고 뇌에 지속적인 에너지를 공급하는 영양죽입니다.",
+                ingredients: ["퀵오트밀 40g", "우유 또는 두유 200ml", "바나나 1개", "시나몬 가루 약간", "견과류 약간"],
+                steps: [
+                    "냄비나 전자레인지용 용기에 오트밀과 우유를 섞습니다.",
+                    "전자레인지에 1분 30초간 따뜻하게 데워줍니다.",
+                    "으깬 바나나를 섞고 토핑으로 슬라이스 바나나와 견과류를 올립니다."
+                ]
+            },
+            {
+                id: 5,
+                title: "닭가슴살 야채 또띠아 랩",
+                category: "balanced",
+                categoryName: "🥗 균형 든든",
+                time: "7분",
+                difficulty: "보통",
+                kcal: 410,
+                protein: 28,
+                carbs: 42,
+                image: "🌯",
+                desc: "손에 들고 등교하면서도 깔끔하게 먹을 수 있는 고단백 또띠아 랩입니다.",
+                ingredients: ["통밀 또띠아 1장", "훈제 닭가슴살 80g", "양상추/어린잎 채소", "슬라이스 토마토 2쪽", "허니머스타드 소스 1스푼"],
+                steps: [
+                    "또띠아를 팬에 10초간 가볍게 데워줍니다.",
+                    "데운 또띠아 위에 소스를 바르고 야채와 슬라이스한 닭가슴살을 올립니다.",
+                    "아래쪽을 접은 뒤 양옆을 단단하게 말아 유산지로 감싸줍니다."
+                ]
+            },
+            {
+                id: 6,
+                title: "두부 든든 야채 볶음밥",
+                category: "high-protein",
+                categoryName: "💪 고단백",
+                time: "10분",
+                difficulty: "보통",
+                kcal: 490,
+                protein: 21,
+                carbs: 68,
+                image: "🍚",
+                desc: "식물성 단백질 두부로 탄수화물 부담은 줄이고 고소함은 극대화한 볶음밥입니다.",
+                ingredients: ["밥 1/2공기", "으깬 단단한 두부 1/2모", "계란 1개", "다진 굴소스 1스푼", "대파/당근 약간"],
+                steps: [
+                    "팬에 기름을 두르고 다진 대파를 볶아 파기름을 냅니다.",
+                    "물기를 짜낸 으깬 두부를 넣고 포슬포슬해질 때까지 볶습니다.",
+                    "밥과 야채, 굴소스를 넣고 함께 볶은 뒤 마지막에 계란 스크램블을 섞습니다."
+                ]
+            },
+            {
+                id: 7,
+                title: "고구마 에그슬럿 컵",
+                category: "quick",
+                categoryName: "⚡ 5분 초간단",
+                time: "5분",
+                difficulty: "쉬움",
+                kcal: 390,
+                protein: 16,
+                carbs: 58,
+                image: "🍠",
+                desc: "달콤한 찐고구마와 부드러운 계란, 치즈가 조화를 이루는 전자레인지 요리입니다.",
+                ingredients: ["찐 고구마 1개 (약 120g)", "계란 1개", "모짜렐라 치즈 30g", "소금/후추 약간"],
+                steps: [
+                    "머그컵에 찐고구마를 넣고 포크로 매끄럽게 으깹니다.",
+                    "으깬 고구마 위에 계란 1개를 깨 넣고 노른자를 터뜨립니다.",
+                    "모짜렐라 치즈를 위에 뿌린 뒤 전자레인지에 2분 30초 돌려 완성합니다."
+                ]
+            },
+            {
+                id: 8,
+                title: "소고기 야채 죽",
+                category: "balanced",
+                categoryName: "🥗 균형 든든",
+                time: "10분",
+                difficulty: "보통",
+                kcal: 430,
+                protein: 23,
+                carbs: 55,
+                image: "🍲",
+                desc: "아침에 소화가 잘 안되는 청소년을 위한 따뜻하고 부드러운 영양만점 죽입니다.",
+                ingredients: ["밥 1공기", "다진 다짐육 소고기 50g", "다진 야채(애호박, 당근)", "참기름 1스푼", "국간장 0.5스푼"],
+                steps: [
+                    "냄비에 참기름을 두르고 다진 소고기와 야채를 볶습니다.",
+                    "고기가 익으면 밥과 물 2컵을 넣고 잘 풀어주며 끓입니다.",
+                    "밥알이 부드럽게 퍼지면 국간장으로 간을 하여 따뜻하게 먹습니다."
+                ]
+            },
+            {
+                id: 9,
+                title: "베리베리 바나나 프로틴 스무디",
+                category: "quick",
+                categoryName: "⚡ 5분 초간단",
+                time: "3분",
+                difficulty: "매우 쉬움",
+                kcal: 350,
+                protein: 22,
+                carbs: 52,
+                image: "🥤",
+                desc: "입맛 없는 아침, 마시는 것만으로도 탄수화물과 단백질을 동시에 충전하는 스무디입니다.",
+                ingredients: ["냉동 블루베리/딸기 1/2컵", "바나나 1개", "우유 또는 단백질 음료 200ml", "견과류 5알"],
+                steps: [
+                    "믹서기에 바나나, 냉동 베리, 단백질 우유를 넣습니다.",
+                    "견과류를 함께 넣고 30초간 부드럽게 갈아줍니다.",
+                    "텀블러에 담아 이동하면서 마십니다."
+                ]
+            },
+            {
+                id: 10,
+                title: "연두부 간장 비빔밥",
+                category: "quick",
+                categoryName: "⚡ 5분 초간단",
+                time: "4분",
+                difficulty: "매우 쉬움",
+                kcal: 400,
+                protein: 18,
+                carbs: 60,
+                image: "🍲",
+                desc: "자극적이지 않고 부드럽게 넘어가 아침 수험생 공부 집중력에 도움을 주는 밥입니다.",
+                ingredients: ["밥 1공기", "연두부 1팩 (150g)", "양념 간장 1스푼", "참기름 1스푼", "김가루 약간"],
+                steps: [
+                    "따뜻한 밥 위에 연두부를 통째로 올립니다.",
+                    "간장 양념장과 고소한 참기름을 둘러줍니다.",
+                    "김가루를 뿌린 후 슥슥 비벼 부드럽게 섭취합니다."
+                ]
+            },
+            {
+                id: 11,
+                title: "단호박 샌드위치",
+                category: "balanced",
+                categoryName: "🥗 균형 든든",
+                time: "8분",
+                difficulty: "보통",
+                kcal: 440,
+                protein: 15,
+                carbs: 66,
+                image: "🥪",
+                desc: "달콤한 찐단호박 샐러드에 삶은 계란을 더해 식이섬유와 풍부한 에너지를 줍니다.",
+                ingredients: ["호밀 식빵 2장", "찐 단호박 100g", "삶은 계란 1개", "플레인 요거트 1스푼", "견과류 약간"],
+                steps: [
+                    "찐 단호박과 삶은 계란을 볼에 넣고 요거트와 함께 으깹니다.",
+                    "식빵 위에 단호박 계란 샐러드를 두툼하게 올립니다.",
+                    "다른 식빵으로 덮은 뒤 반으로 잘라 맛있게 먹습니다."
+                ]
+            },
+            {
+                id: 12,
+                title: "치즈 삶은 계란 샐러드 모닝빵",
+                category: "high-protein",
+                categoryName: "💪 고단백",
+                time: "6분",
+                difficulty: "쉬움",
+                kcal: 460,
+                protein: 21,
+                carbs: 48,
+                image: "🍔",
+                desc: "미리 삶아둔 계란으로 아침에 빠르게 만드는 고소한 에그 마요 샌드위치입니다.",
+                ingredients: ["모닝빵 2개", "삶은 계란 2개", "마요네즈 1스푼", "슬라이스 치즈 1장", "허니 머스타드 약간"],
+                steps: [
+                    "삶은 계란을 볼에 넣고 으깬 후 마요네즈와 머스타드를 섞습니다.",
+                    "모닝빵의 가로 중간을 칼집 내어 빵을 엽니다.",
+                    "빵 사이에 치즈 조각과 에그 샐러드를 가득 채워 넣습니다."
+                ]
+            }
+        ];
+
+        // Core Calculation Logic
+        function calculateNutrition(e) {
+            if(e) e.preventDefault();
+
+            const age = parseFloat(document.getElementById('age').value);
+            const gender = document.querySelector('input[name="gender"]:checked').value;
+            const height = parseFloat(document.getElementById('height').value);
+            const weight = parseFloat(document.getElementById('weight').value);
+            const targetHeight = parseFloat(document.getElementById('target-height').value);
+            const activity = parseFloat(document.getElementById('activity').value);
+
+            // BMR (Mifflin-St Jeor Equation)
+            let bmr = (10 * weight) + (6.25 * height) - (5 * age);
+            if (gender === 'male') {
+                bmr += 5;
+            } else {
+                bmr -= 161;
+            }
+
+            // Youth Growth factor bonus (+10% extra energy for development)
+            const growthBonus = 1.1; 
+            const tdee = Math.round(bmr * activity * growthBonus);
+
+            // Macronutrient Targets (Carbs: 55%, Protein: 20%, Fat: 25%)
+            const proteinGrams = Math.round((tdee * 0.20) / 4);
+            const carbsGrams = Math.round((tdee * 0.55) / 4);
+
+            // Breakfast specific (approx 25%-30% of daily intake)
+            const bfKcalMin = Math.round(tdee * 0.25);
+            const bfKcalMax = Math.round(tdee * 0.30);
+
+            const bfProteinMin = Math.round(proteinGrams * 0.25);
+            const bfProteinMax = Math.round(proteinGrams * 0.30);
+
+            const bfCarbsMin = Math.round(carbsGrams * 0.25);
+            const bfCarbsMax = Math.round(carbsGrams * 0.30);
+
+            // Update UI Numbers
+            document.getElementById('res-kcal').innerText = tdee.toLocaleString();
+            document.getElementById('res-breakfast-kcal').innerText = `${bfKcalMin}~${bfKcalMax}`;
+
+            document.getElementById('res-protein').innerText = proteinGrams;
+            document.getElementById('res-breakfast-protein').innerText = `${bfProteinMin}~${bfProteinMax}`;
+
+            document.getElementById('res-carbs').innerText = carbsGrams;
+            document.getElementById('res-breakfast-carbs').innerText = `${bfCarbsMin}~${bfCarbsMax}`;
+
+            // Check Height Difference Notice (>= 10cm)
+            const heightNoticeEl = document.getElementById('height-notice');
+            const heightDiff = (targetHeight - height).toFixed(1);
+
+            if (heightDiff >= 10) {
+                heightNoticeEl.classList.remove('hidden');
+                document.getElementById('height-diff-text').innerText = `${heightDiff}cm`;
+                document.getElementById('gap-badge').innerText = `목표 차이: +${heightDiff}cm`;
+            } else {
+                heightNoticeEl.classList.add('hidden');
+            }
+
+            // Smooth scroll to result
+            document.getElementById('result-section').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // Render Recipe Cards
+        function renderRecipes(items) {
+            const grid = document.getElementById('recipe-grid');
+            grid.innerHTML = '';
+
+            items.forEach(recipe => {
+                const card = document.createElement('div');
+                card.className = "bg-white border border-slate-200 rounded-2xl p-5 hover:shadow-md transition-all flex flex-col justify-between group";
+                card.innerHTML = `
+                    <div class="space-y-3">
+                        <div class="flex justify-between items-start">
+                            <div class="text-4xl p-2 bg-slate-50 rounded-xl group-hover:scale-110 transition-transform duration-200">
+                                ${recipe.image}
+                            </div>
+                            <span class="text-xs font-semibold px-2.5 py-1 rounded-full bg-slate-100 text-slate-600">
+                                ${recipe.categoryName}
+                            </span>
+                        </div>
+                        
+                        <div>
+                            <h4 class="font-bold text-base text-slate-800 group-hover:text-amber-600 transition-colors">${recipe.title}</h4>
+                            <p class="text-xs text-slate-500 mt-1 line-clamp-2 leading-relaxed">${recipe.desc}</p>
+                        </div>
+
+                        <!-- Info Badges -->
+                        <div class="flex items-center space-x-3 text-xs text-slate-500 pt-1">
+                            <span class="flex items-center gap-1"><i data-lucide="clock" class="w-3.5 h-3.5 text-amber-500"></i> ${recipe.time}</span>
+                            <span>•</span>
+                            <span class="flex items-center gap-1"><i data-lucide="bar-chart-2" class="w-3.5 h-3.5 text-slate-400"></i> 난이도: ${recipe.difficulty}</span>
+                        </div>
+
+                        <!-- Macro Badges -->
+                        <div class="grid grid-cols-3 gap-1.5 pt-2 text-center text-xs">
+                            <div class="bg-orange-50/60 p-1.5 rounded-lg">
+                                <span class="text-[10px] text-orange-400 block">칼로리</span>
+                                <span class="font-bold text-orange-700">${recipe.kcal}k</span>
+                            </div>
+                            <div class="bg-blue-50/60 p-1.5 rounded-lg">
+                                <span class="text-[10px] text-blue-400 block">단백질</span>
+                                <span class="font-bold text-blue-700">${recipe.protein}g</span>
+                            </div>
+                            <div class="bg-emerald-50/60 p-1.5 rounded-lg">
+                                <span class="text-[10px] text-emerald-400 block">탄수화물</span>
+                                <span class="font-bold text-emerald-700">${recipe.carbs}g</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button onclick="openModal(${recipe.id})" class="mt-4 w-full py-2 bg-slate-50 hover:bg-amber-50 hover:text-amber-700 text-slate-700 text-xs font-semibold rounded-xl border border-slate-200 hover:border-amber-200 transition-colors flex items-center justify-center gap-1">
+                        <span>레시피 보기</span>
+                        <i data-lucide="chevron-right" class="w-4 h-4"></i>
+                    </button>
+                `;
+                grid.appendChild(card);
+            });
+
+            // Re-initialize lucide icons for dynamic elements
+            lucide.createIcons();
+        }
+
+        // Filter Functionality
+        function filterRecipes(category) {
+            // Update active state of filter buttons
+            const buttons = document.querySelectorAll('.filter-btn');
+            buttons.forEach(btn => {
+                btn.classList.remove('bg-slate-900', 'text-white');
+                btn.classList.add('bg-slate-100', 'text-slate-700');
+            });
+            event.currentTarget.classList.remove('bg-slate-100', 'text-slate-700');
+            event.currentTarget.classList.add('bg-slate-900', 'text-white');
+
+            if (category === 'all') {
+                renderRecipes(recipes);
+            } else {
+                const filtered = recipes.filter(r => r.category === category);
+                renderRecipes(filtered);
+            }
+        }
+
+        // Modal Functions
+        function openModal(id) {
+            const recipe = recipes.find(r => r.id === id);
+            if (!recipe) return;
+
+            document.getElementById('modal-title').innerText = `${recipe.image} ${recipe.title}`;
+            document.getElementById('modal-category').innerText = recipe.categoryName;
+            document.getElementById('modal-desc').innerText = recipe.desc;
+
+            document.getElementById('modal-kcal').innerText = `${recipe.kcal} kcal`;
+            document.getElementById('modal-protein').innerText = `${recipe.protein}g`;
+            document.getElementById('modal-carbs').innerText = `${recipe.carbs}g`;
+
+            // Render Ingredients
+            const ingList = document.getElementById('modal-ingredients');
+            ingList.innerHTML = recipe.ingredients.map(ing => `<li>${ing}</li>`).join('');
+
+            // Render Steps
+            const stepsList = document.getElementById('modal-steps');
+            stepsList.innerHTML = recipe.steps.map(step => `<li class="pl-1">${step}</li>`).join('');
+
+            document.getElementById('recipe-modal').classList.remove('hidden');
+        }
+
+        function closeModal() {
+            document.getElementById('recipe-modal').classList.add('hidden');
+        }
+
+        function scrollToInput() {
+            document.getElementById('input-section').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // Initialize App Page
+        window.onload = function() {
+            lucide.createIcons();
+            // Initial Calculation with default values
+            calculateNutrition();
+            // Render all 12 recipes
+            renderRecipes(recipes);
+        };
+    </script>
+</body>
+</html>
